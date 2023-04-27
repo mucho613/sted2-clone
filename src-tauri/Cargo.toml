@@ -3,8 +3,8 @@ name = "sted2-clone"
 version = "0.0.0"
 description = "Clone of the STed2 the MIDI Sequencer"
 authors = ["Daisuke Yamamura <mucho613@gmail.com>"]
-license = ""
-repository = ""
+license = "MIT"
+repository = "https://github.com/mucho613/sted2-clone/"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
