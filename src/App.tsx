@@ -1,28 +1,36 @@
-import { createSignal } from "solid-js";
-import logo from "./assets/logo.svg";
+import { createSignal, onCleanup, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
-import { emit, listen } from '@tauri-apps/api/event'
 
 function App() {
   const [bytes, setBytes] = createSignal<number[]>([]);
+  const [playPosition, setPlayPosition] = createSignal<number>(0);
 
   function play() {
-    invoke("play");
-
+    invoke("play").then(() => console.log("hoge"));
   }
 
-  async function loadFile() {
-    emit("front-to-back", "hello!");
-    await invoke(
+  function loadFile() {
+    invoke(
       "load_file", 
       { filePath: "C:\\Users\\mucho\\workspace\\sted2\\sted2-clone\\src-tauri\\test\\ALLSTARS.MID" }
-    ) as number[];
+    );
   }
 
-  listen('back-to-front', event => {
-    console.log('back-to-front');
-  });
+  async function getPlayPosition() {
+    setPlayPosition(await invoke("get_play_position"));
+  }
+
+  onMount(() => {
+    let frame = requestAnimationFrame(loop);
+
+  function loop() {
+    frame = requestAnimationFrame(loop);
+    getPlayPosition();
+  }
+    
+    onCleanup(() => cancelAnimationFrame(frame))
+  })
 
   return (
     <div class="container">
@@ -33,8 +41,12 @@ function App() {
         <button type="button" onClick={() => play()}>
           Play
         </button>
+        <button type="button" onClick={() => getPlayPosition()}>
+          Get play position
+        </button>
       </div>
       <h2>Binary viewer</h2>
+      <p>Play position: {playPosition()}</p>
       <div class="binary-viewer">
         {bytes().map(byte => <span>{byte.toString(16).toUpperCase().padStart(2, "0")}</span>)}
       </div>

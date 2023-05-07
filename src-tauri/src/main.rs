@@ -4,20 +4,30 @@
 use std::{fs::File, io::Read, sync::Mutex, thread, time};
 
 mod midi;
-use midir::MidiOutput;
+
+use crate::midi::{open_port, send_message};
 use tauri::{Manager, State};
 
-use crate::midi::send_message;
+struct FileBuffer {
+    file: Mutex<Vec<u8>>,
+}
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
+struct PlayPosition {
+    position: Mutex<usize>,
+}
+
 #[tauri::command]
-fn play(file_buffer: State<'_, FileBuffer>) {
+async fn get_play_position(play_position: State<'_, PlayPosition>) -> Result<usize, ()> {
+    Ok(*play_position.position.lock().unwrap())
+}
+
+#[tauri::command]
+async fn play(
+    file_buffer: State<'_, FileBuffer>,
+    play_position: State<'_, PlayPosition>,
+) -> Result<(), String> {
     // MIDI output open
-    let midi_outputs = MidiOutput::new("hoge").unwrap();
-    let midi_output = &midi_outputs.ports()[0];
-    let mut connect_out = midi_outputs
-        .connect(&midi_output, "Komplete Audio 6 MK2 MIDI")
-        .unwrap();
+    let mut midi_output = open_port().unwrap();
 
     let file_buffer = file_buffer.file.lock().unwrap();
 
@@ -35,6 +45,7 @@ fn play(file_buffer: State<'_, FileBuffer>) {
     let mut tempo: u32 = 500000; // Default BPM = 120
 
     while index < track_chunk.len() {
+        *play_position.position.lock().unwrap() = index;
         let byte_0 = u32::from(track_chunk[index]);
         let byte_1 = u32::from(track_chunk[index + 1]);
         let byte_2 = u32::from(track_chunk[index + 2]);
@@ -53,10 +64,10 @@ fn play(file_buffer: State<'_, FileBuffer>) {
             index += 4;
             byte_0 & 0x7F << 21 | byte_1 & 0x7F << 14 | byte_2 & 0x7F << 7 | byte_3 & 0x7F
         } else {
-            panic!();
+            panic!("Parsing variablel-length quantity failed.");
         };
 
-        println!("Delta time: {}", delta_time);
+        // println!("Delta time: {}", delta_time);
 
         loop {
             let now = time::Instant::now();
@@ -82,19 +93,19 @@ fn play(file_buffer: State<'_, FileBuffer>) {
         match track_chunk[index] & 0xF0 {
             // 3 bytes message
             0x80 | 0x90 | 0xA0 | 0xB0 | 0xE0 => {
-                println!("3 bytes message: {:02X?}", &track_chunk[index..index + 4]);
+                println!("3 bytes message: {:02X?}", &track_chunk[index..index + 3]);
 
                 let message: &[u8] = &track_chunk[index..index + 3];
-                send_message(&mut connect_out, message.to_vec());
+                send_message(&mut midi_output, message.to_vec());
 
                 index += 3;
             }
             // 2 bytes message
             0xC0 | 0xD0 => {
-                println!("2 bytes message: {:02X?}", &track_chunk[index..index + 3]);
+                println!("2 bytes message: {:02X?}", &track_chunk[index..index + 2]);
 
                 let message = &track_chunk[index..index + 2];
-                send_message(&mut connect_out, message.to_vec());
+                send_message(&mut midi_output, message.to_vec());
 
                 index += 2;
             }
@@ -102,6 +113,7 @@ fn play(file_buffer: State<'_, FileBuffer>) {
                 match &track_chunk[index] {
                     // System exclusive
                     0xF0 => {
+                        // println!("System exclusive");
                         let length = &track_chunk[index + 1];
 
                         let mut data: Vec<u8> = track_chunk
@@ -111,14 +123,14 @@ fn play(file_buffer: State<'_, FileBuffer>) {
 
                         data.remove(1);
 
-                        send_message(&mut connect_out, data);
+                        send_message(&mut midi_output, data);
 
                         index += usize::from(*length) + 2
                     }
 
                     // Meta event
                     0xFF => {
-                        println!("Meta event: {:02X?}", &track_chunk[index..index + 10]);
+                        // println!("Meta event");
                         index += 1;
 
                         let meta_event_type = track_chunk[index];
@@ -133,15 +145,15 @@ fn play(file_buffer: State<'_, FileBuffer>) {
                             last_tempo_changed_time = time::Instant::now();
                             last_tempo_changed_delta_time = delta_time_counter;
 
-                            println!("Tempo changed: {}", tempo);
+                            // println!("Tempo changed: {}", tempo);
                         } else if meta_event_type == 0x58 {
-                            println!(
-                                "Signature changed: {}, {}, {}, {}",
-                                track_chunk[index + 2],
-                                track_chunk[index + 3],
-                                track_chunk[index + 4],
-                                track_chunk[index + 5]
-                            )
+                            // println!(
+                            //     "Signature changed: {}, {}, {}, {}",
+                            //     track_chunk[index + 2],
+                            //     track_chunk[index + 3],
+                            //     track_chunk[index + 4],
+                            //     track_chunk[index + 5]
+                            // )
                         }
                         index += 1;
 
@@ -157,12 +169,13 @@ fn play(file_buffer: State<'_, FileBuffer>) {
         }
     }
 
-    connect_out.close();
+    midi_output.close();
+
+    Ok(())
 }
 
 #[tauri::command]
 fn load_file(file_path: String, file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
-    println!("Load file handler invoked!");
     let mut file = File::open(file_path).expect("ファイルの読み込みに失敗しました。");
     let mut buffer: Vec<u8> = vec![];
     file.read_to_end(&mut buffer).unwrap();
@@ -170,22 +183,15 @@ fn load_file(file_path: String, file_buffer: State<'_, FileBuffer>) -> Result<()
     Ok(())
 }
 
-struct FileBuffer {
-    file: Mutex<Vec<u8>>,
-}
-
 fn main() {
     tauri::Builder::default()
-        .setup(|app| {
-            let id = app.listen_global("front-to-back", |event| {
-                println!("Got event");
-            });
-            Ok(())
-        })
         .manage(FileBuffer {
             file: Default::default(),
         })
-        .invoke_handler(tauri::generate_handler![play, load_file])
+        .manage(PlayPosition {
+            position: Default::default(),
+        })
+        .invoke_handler(tauri::generate_handler![play, load_file, get_play_position])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
