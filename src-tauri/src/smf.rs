@@ -17,3 +17,21 @@ pub struct TrackChunk {
     data_length: u32,
     data_body: Vec<u8>,
 }
+
+impl HeaderChunk {
+    fn validate_header_chunk(&self) {
+        self.chunk_type[0] == b'M' && // 0x4D
+        self.chunk_type[1] == b'T' && // 0x54
+        self.chunk_type[2] == b'h' && // 0x68
+        self.chunk_type[3] == b'd' // 0x64
+    }
+}
+
+impl TrackChunk {
+    fn validate_track_chunk(&self) {
+        self.chunk_type[0] == b'M' && // 0x4D
+        self.chunk_type[1] == b'T' && // 0x54
+        self.chunk_type[2] == b'r' && // 0x72
+        self.chunk_type[3] == b'k' // 0x6B
+    }
+}

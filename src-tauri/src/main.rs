@@ -1,36 +1,30 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{fs::File, io::Read, thread, time};
+use std::{fs::File, io::Read, sync::Mutex, thread, time};
 
 mod midi;
 use midir::MidiOutput;
+use tauri::{Manager, State};
 
 use crate::midi::send_message;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn play() {
+fn play(file_buffer: State<'_, FileBuffer>) {
     // MIDI output open
     let midi_outputs = MidiOutput::new("hoge").unwrap();
-    let midi_output = &midi_outputs.ports()[1];
+    let midi_output = &midi_outputs.ports()[0];
     let mut connect_out = midi_outputs
         .connect(&midi_output, "Komplete Audio 6 MK2 MIDI")
         .unwrap();
 
-    // File open
-    let mut file =
-        // File::open("C:\\Users\\mucho\\workspace\\sted2\\sted2-clone\\src-tauri\\test\\test.smf")
-        File::open("C:\\Users\\mucho\\workspace\\sted2\\sted2-clone\\src-tauri\\test\\ALLSTARS.MID")
-        // File::open("C:\\Users\\mucho\\workspace\\sted2\\sted2-clone\\src-tauri\\test\\midi602_format0.MID")
-            .unwrap();
-    let mut file_read_buffer = Vec::new();
-    file.read_to_end(&mut file_read_buffer).unwrap();
+    let file_buffer = file_buffer.file.lock().unwrap();
 
-    let header_chunk = &file_read_buffer[0..14];
+    let header_chunk = &file_buffer[0..14];
 
     let song_delta_time = u32::from(header_chunk[12]) << 8 | u32::from(header_chunk[13]);
-    let track_chunk = &file_read_buffer[14..];
+    let track_chunk = &file_buffer[14..];
 
     let mut index = 8;
 
@@ -88,7 +82,7 @@ fn play() {
         match track_chunk[index] & 0xF0 {
             // 3 bytes message
             0x80 | 0x90 | 0xA0 | 0xB0 | 0xE0 => {
-                println!("3 bytes message: {:X?}", &track_chunk[index..index + 4]);
+                println!("3 bytes message: {:02X?}", &track_chunk[index..index + 4]);
 
                 let message: &[u8] = &track_chunk[index..index + 3];
                 send_message(&mut connect_out, message.to_vec());
@@ -97,7 +91,7 @@ fn play() {
             }
             // 2 bytes message
             0xC0 | 0xD0 => {
-                println!("2 bytes message: {:X?}", &track_chunk[index..index + 3]);
+                println!("2 bytes message: {:02X?}", &track_chunk[index..index + 3]);
 
                 let message = &track_chunk[index..index + 2];
                 send_message(&mut connect_out, message.to_vec());
@@ -124,7 +118,7 @@ fn play() {
 
                     // Meta event
                     0xFF => {
-                        println!("Meta event: {:X?}", &track_chunk[index..index + 10]);
+                        println!("Meta event: {:02X?}", &track_chunk[index..index + 10]);
                         index += 1;
 
                         let meta_event_type = track_chunk[index];
@@ -166,9 +160,32 @@ fn play() {
     connect_out.close();
 }
 
+#[tauri::command]
+fn load_file(file_path: String, file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
+    println!("Load file handler invoked!");
+    let mut file = File::open(file_path).expect("ファイルの読み込みに失敗しました。");
+    let mut buffer: Vec<u8> = vec![];
+    file.read_to_end(&mut buffer).unwrap();
+    *file_buffer.file.lock().unwrap() = buffer;
+    Ok(())
+}
+
+struct FileBuffer {
+    file: Mutex<Vec<u8>>,
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![play])
+        .setup(|app| {
+            let id = app.listen_global("front-to-back", |event| {
+                println!("Got event");
+            });
+            Ok(())
+        })
+        .manage(FileBuffer {
+            file: Default::default(),
+        })
+        .invoke_handler(tauri::generate_handler![play, load_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
