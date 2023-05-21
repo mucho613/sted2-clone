@@ -1,13 +1,15 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
+import TrackMonitor from "./feature/TrackMonitor";
 
 function App() {
   const [bytes, setBytes] = createSignal<number[]>([]);
   const [playPosition, setPlayPosition] = createSignal<number>(0);
+  const [noteOnKeys, setNoteOnKeys] = createSignal<any>();
 
   function play() {
-    invoke("play").then(() => console.log("hoge"));
+    invoke("play").then(() => console.log("Play end."));
   }
 
   function loadFile() {
@@ -17,20 +19,12 @@ function App() {
     );
   }
 
-  async function getPlayPosition() {
-    setPlayPosition(await invoke("get_play_position"));
+  async function getNoteOnKeys(): Promise<{[key: string]: number}> {
+    // return invoke("get_note_on_keys");
+    const noteOnKeys = await invoke("get_note_on_keys") as {[key: string]: number};
+    // console.log(noteOnKeys);
+    return noteOnKeys;
   }
-
-  onMount(() => {
-    let frame = requestAnimationFrame(loop);
-
-  function loop() {
-    frame = requestAnimationFrame(loop);
-    getPlayPosition();
-  }
-    
-    onCleanup(() => cancelAnimationFrame(frame))
-  })
 
   return (
     <div class="container">
@@ -41,15 +35,12 @@ function App() {
         <button type="button" onClick={() => play()}>
           Play
         </button>
-        <button type="button" onClick={() => getPlayPosition()}>
-          Get play position
+        <button type="button" onClick={() => getNoteOnKeys()}>
+          Get note on keys
         </button>
       </div>
-      <h2>Binary viewer</h2>
-      <p>Play position: {playPosition()}</p>
-      <div class="binary-viewer">
-        {bytes().map(byte => <span>{byte.toString(16).toUpperCase().padStart(2, "0")}</span>)}
-      </div>
+
+      <TrackMonitor getNoteOnKeys={getNoteOnKeys}/>
     </div>
   );
 }

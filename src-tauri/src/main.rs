@@ -1,30 +1,30 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{fs::File, io::Read, sync::Mutex, thread, time};
+use std::{fs::File, io::Read, sync::Mutex, thread, time, collections::HashMap};
 
 mod midi;
 
 use crate::midi::{open_port, send_message};
-use tauri::{Manager, State};
+use tauri::{State};
 
 struct FileBuffer {
     file: Mutex<Vec<u8>>,
 }
 
-struct PlayPosition {
-    position: Mutex<usize>,
+struct NoteOnKeys {
+    note_on_keys: Mutex<HashMap<String, u8>>,
 }
 
 #[tauri::command]
-async fn get_play_position(play_position: State<'_, PlayPosition>) -> Result<usize, ()> {
-    Ok(*play_position.position.lock().unwrap())
+async fn get_note_on_keys(note_on_keys: State<'_, NoteOnKeys>) -> Result<HashMap<String, u8>, ()> {
+    Ok(note_on_keys.note_on_keys.lock().unwrap().clone())
 }
 
 #[tauri::command]
 async fn play(
     file_buffer: State<'_, FileBuffer>,
-    play_position: State<'_, PlayPosition>,
+    note_on_keys: State<'_, NoteOnKeys>,
 ) -> Result<(), String> {
     // MIDI output open
     let mut midi_output = open_port().unwrap();
@@ -45,7 +45,6 @@ async fn play(
     let mut tempo: u32 = 500000; // Default BPM = 120
 
     while index < track_chunk.len() {
-        *play_position.position.lock().unwrap() = index;
         let byte_0 = u32::from(track_chunk[index]);
         let byte_1 = u32::from(track_chunk[index + 1]);
         let byte_2 = u32::from(track_chunk[index + 2]);
@@ -93,16 +92,30 @@ async fn play(
         match track_chunk[index] & 0xF0 {
             // 3 bytes message
             0x80 | 0x90 | 0xA0 | 0xB0 | 0xE0 => {
-                println!("3 bytes message: {:02X?}", &track_chunk[index..index + 3]);
+                // println!("3 bytes message: {:02X?}", &track_chunk[index..index + 3]);
 
                 let message: &[u8] = &track_chunk[index..index + 3];
                 send_message(&mut midi_output, message.to_vec());
+
+                match track_chunk[index] & 0xF0 {
+                    0x90 => {
+                        note_on_keys.note_on_keys.lock().unwrap().insert(
+                            std::format!("{}-{}", track_chunk[index] & 0x0F, track_chunk[index + 1])
+                        , track_chunk[index + 2]);
+                    }
+                    0x80 => {
+                        note_on_keys.note_on_keys.lock().unwrap().remove(
+                            &std::format!("{}-{}", track_chunk[index] & 0x0F, track_chunk[index + 1])
+                        );
+                    }
+                    _ => ()
+                }
 
                 index += 3;
             }
             // 2 bytes message
             0xC0 | 0xD0 => {
-                println!("2 bytes message: {:02X?}", &track_chunk[index..index + 2]);
+                // println!("2 bytes message: {:02X?}", &track_chunk[index..index + 2]);
 
                 let message = &track_chunk[index..index + 2];
                 send_message(&mut midi_output, message.to_vec());
@@ -188,10 +201,10 @@ fn main() {
         .manage(FileBuffer {
             file: Default::default(),
         })
-        .manage(PlayPosition {
-            position: Default::default(),
+        .manage(NoteOnKeys {
+            note_on_keys: Default::default(),
         })
-        .invoke_handler(tauri::generate_handler![play, load_file, get_play_position])
+        .invoke_handler(tauri::generate_handler![play, load_file, get_note_on_keys])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
