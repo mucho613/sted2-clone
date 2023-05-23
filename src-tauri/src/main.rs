@@ -55,13 +55,13 @@ async fn play(
             byte_0
         } else if byte_1 & 0x80 == 0x00 {
             index += 2;
-            byte_0 & 0x7F << 7 | byte_1 & 0x7F
+            (byte_0 & 0x7F) << 7 | (byte_1 & 0x7F)
         } else if byte_2 & 0x80 == 0x00 {
             index += 3;
-            byte_0 & 0x7F << 14 | byte_1 & 0x7F << 7 | byte_2 & 0x7F
+            (byte_0 & 0x7F) << 14 | (byte_1 & 0x7F) << 7 | (byte_2 & 0x7F)
         } else if byte_3 & 0x80 == 0x00 {
             index += 4;
-            byte_0 & 0x7F << 21 | byte_1 & 0x7F << 14 | byte_2 & 0x7F << 7 | byte_3 & 0x7F
+            (byte_0 & 0x7F) << 21 | (byte_1 & 0x7F) << 14 | (byte_2 & 0x7F) << 7 | (byte_3 & 0x7F)
         } else {
             panic!("Parsing variablel-length quantity failed.");
         };
