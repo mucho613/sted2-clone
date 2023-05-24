@@ -27,7 +27,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "com.mucho613.sted2-clone",
       "targets": "all"
     },
     "security": {
@@ -41,8 +41,8 @@
         "fullscreen": false,
         "resizable": true,
         "title": "sted2-clone",
-        "width": 800,
-        "height": 600
+        "width": 824,
+        "height": 580
       }
     ]
   }
