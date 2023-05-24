@@ -1,46 +1,25 @@
-import { createSignal, onCleanup, onMount } from "solid-js";
-import { invoke } from "@tauri-apps/api/tauri";
-import "./App.css";
+import { createSignal } from "solid-js";
 import TrackMonitor from "./feature/TrackMonitor";
+import { useInvoke } from "./useInvoke";
 
 function App() {
-  const [bytes, setBytes] = createSignal<number[]>([]);
-  const [playPosition, setPlayPosition] = createSignal<number>(0);
-  const [noteOnKeys, setNoteOnKeys] = createSignal<any>();
+  const [filePath, setFilePath] = createSignal("");
 
-  function play() {
-    invoke("play").then(() => console.log("Play end."));
-  }
-
-  function loadFile() {
-    invoke(
-      "load_file", 
-      { filePath: "C:\\Users\\mucho\\workspace\\sted2\\sted2-clone\\src-tauri\\test\\ALLSTARS.MID" }
-    );
-  }
-
-  async function getNoteOnKeys(): Promise<{[key: string]: number}> {
-    // return invoke("get_note_on_keys");
-    const noteOnKeys = await invoke("get_note_on_keys") as {[key: string]: number};
-    // console.log(noteOnKeys);
-    return noteOnKeys;
-  }
+  const { loadFile, play, getPlayStatus } = useInvoke();
 
   return (
     <div class="container">
       <div>
-        <button type="button" onClick={() => loadFile()}>
+        <input type="text" onInput={(e) => setFilePath(e.target.value)}/>
+        <button type="button" onClick={() => loadFile(filePath())}>
           Load file
         </button>
-        <button type="button" onClick={() => play()}>
+        <button type="button" onClick={play}>
           Play
-        </button>
-        <button type="button" onClick={() => getNoteOnKeys()}>
-          Get note on keys
         </button>
       </div>
 
-      <TrackMonitor getNoteOnKeys={getNoteOnKeys}/>
+      <TrackMonitor getPlayStatus={getPlayStatus}/>
     </div>
   );
 }

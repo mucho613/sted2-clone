@@ -1,30 +1,18 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{fs::File, io::Read, sync::Mutex, thread, time, collections::HashMap};
-
+use std::{fs::File, io::Read, sync::Mutex, thread, time};
 mod midi;
-
 use crate::midi::{open_port, send_message};
-use tauri::{State};
+use tauri::State;
 
 struct FileBuffer {
     file: Mutex<Vec<u8>>,
 }
 
-struct NoteOnKeys {
-    note_on_keys: Mutex<HashMap<String, u8>>,
-}
-
-#[tauri::command]
-async fn get_note_on_keys(note_on_keys: State<'_, NoteOnKeys>) -> Result<HashMap<String, u8>, ()> {
-    Ok(note_on_keys.note_on_keys.lock().unwrap().clone())
-}
-
 #[tauri::command]
 async fn play(
     file_buffer: State<'_, FileBuffer>,
-    note_on_keys: State<'_, NoteOnKeys>,
 ) -> Result<(), String> {
     // MIDI output open
     let mut midi_output = open_port().unwrap();
@@ -96,20 +84,6 @@ async fn play(
 
                 let message: &[u8] = &track_chunk[index..index + 3];
                 send_message(&mut midi_output, message.to_vec());
-
-                match track_chunk[index] & 0xF0 {
-                    0x90 => {
-                        note_on_keys.note_on_keys.lock().unwrap().insert(
-                            std::format!("{}-{}", track_chunk[index] & 0x0F, track_chunk[index + 1])
-                        , track_chunk[index + 2]);
-                    }
-                    0x80 => {
-                        note_on_keys.note_on_keys.lock().unwrap().remove(
-                            &std::format!("{}-{}", track_chunk[index] & 0x0F, track_chunk[index + 1])
-                        );
-                    }
-                    _ => ()
-                }
 
                 index += 3;
             }
@@ -201,10 +175,7 @@ fn main() {
         .manage(FileBuffer {
             file: Default::default(),
         })
-        .manage(NoteOnKeys {
-            note_on_keys: Default::default(),
-        })
-        .invoke_handler(tauri::generate_handler![play, load_file, get_note_on_keys])
+        .invoke_handler(tauri::generate_handler![play, load_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
