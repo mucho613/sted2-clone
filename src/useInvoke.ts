@@ -4,7 +4,7 @@ import { PlayStatus } from "./feature/TrackMonitor";
 export function useInvoke() {
   function loadFile(filePath: string) {
     invoke(
-      "load_file", 
+      "load_file",
       { filePath }
     );
   }

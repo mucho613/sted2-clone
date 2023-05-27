@@ -13,7 +13,7 @@ export const calculateKeyPositionOnlyWhiteKeys = (keyNumber: number) => {
         y: 0,
         width: WHITE_KEY_WIDTH,
         height: WHITE_KEY_HEIGHT,
-      } 
+      }
     case 2:
       return {
         x: octaveOffset + WHITE_KEY_WIDTH,
@@ -27,7 +27,7 @@ export const calculateKeyPositionOnlyWhiteKeys = (keyNumber: number) => {
         y: 0,
         width: WHITE_KEY_WIDTH,
         height: WHITE_KEY_HEIGHT,
-      }  
+      }
     case 5:
       return {
         x: octaveOffset + WHITE_KEY_WIDTH * 3,
@@ -73,7 +73,7 @@ export const calculateKeyPositionOnlyBlackKeys = (keyNumber: number) => {
   const octaveOffset = octave * WHITE_KEY_WIDTH * 7;
 
   switch (keyNumberInOctave) {
-    case 1: 
+    case 1:
       return {
         x: octaveOffset + (WHITE_KEY_WIDTH - (BLACK_KEY_WIDTH / 2)),
         y: 0,
@@ -114,6 +114,6 @@ export const calculateKeyPositionOnlyBlackKeys = (keyNumber: number) => {
         y: 0,
         width: 0,
         height: 0,
-      }  
+      }
   }
 }
