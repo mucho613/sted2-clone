@@ -14,8 +14,6 @@ struct FileBuffer {
 async fn play(
     file_buffer: State<'_, FileBuffer>,
 ) -> Result<(), String> {
-    // MIDI output open
-    let mut midi_output = open_port().unwrap();
 
     let file_buffer = file_buffer.file.lock().unwrap();
 
@@ -156,8 +154,6 @@ async fn play(
         }
     }
 
-    midi_output.close();
-
     Ok(())
 }
 
@@ -178,4 +174,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![play, load_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+
+    // MIDI output open
+    let mut midi_output = open_port().unwrap();
 }
