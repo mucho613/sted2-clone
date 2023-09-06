@@ -22,14 +22,14 @@ function TrackMonitor(props: Props) {
   onMount(() => {
     if(!canvas) return;
     const context = canvas.getContext("2d");
-    
+
     let frame = requestAnimationFrame(loop);
 
     function loop() {
       frame = requestAnimationFrame(loop);
 
       if(!context) return;
-      
+
       // props.getPlayStatus().then(
       //   (playStatus) => {
       //     const { channels } = playStatus;
@@ -95,7 +95,7 @@ function TrackMonitor(props: Props) {
       //   }
       // );
     }
-    
+
     onCleanup(() => cancelAnimationFrame(frame))
   })
 
