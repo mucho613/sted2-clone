@@ -4,18 +4,24 @@
 use std::{fs::File, io::Read, sync::Mutex, thread, time};
 mod midi;
 use crate::midi::{open_port, send_message};
+use midir::MidiOutputConnection;
 use tauri::State;
 
 struct FileBuffer {
     file: Mutex<Vec<u8>>,
 }
 
+struct MidiOutput {
+    midi_output_connection: Mutex<MidiOutputConnection>,
+}
+
 #[tauri::command]
 async fn play(
     file_buffer: State<'_, FileBuffer>,
+    midi_output: State<'_, MidiOutput>,
 ) -> Result<(), String> {
-
     let file_buffer = file_buffer.file.lock().unwrap();
+    let mut midi_output = midi_output.midi_output_connection.lock().unwrap();
 
     let header_chunk = &file_buffer[0..14];
 
@@ -24,7 +30,7 @@ async fn play(
 
     let mut index = 8;
 
-    let play_start_time = time::Instant::now();
+    let play_start_time: time::Instant = time::Instant::now();
     let mut delta_time_counter: u32 = 0;
     let mut last_tempo_changed_time = play_start_time;
     let mut last_tempo_changed_delta_time = delta_time_counter;
@@ -52,7 +58,7 @@ async fn play(
             panic!("Parsing variablel-length quantity failed.");
         };
 
-        // println!("Delta time: {}", delta_time);
+        println!("Delta time: {}", delta_time);
 
         loop {
             let now = time::Instant::now();
@@ -78,7 +84,7 @@ async fn play(
         match track_chunk[index] & 0xF0 {
             // 3 bytes message
             0x80 | 0x90 | 0xA0 | 0xB0 | 0xE0 => {
-                // println!("3 bytes message: {:02X?}", &track_chunk[index..index + 3]);
+                println!("3 bytes message: {:02X?}", &track_chunk[index..index + 3]);
 
                 let message: &[u8] = &track_chunk[index..index + 3];
                 send_message(&mut midi_output, message.to_vec());
@@ -87,7 +93,7 @@ async fn play(
             }
             // 2 bytes message
             0xC0 | 0xD0 => {
-                // println!("2 bytes message: {:02X?}", &track_chunk[index..index + 2]);
+                println!("2 bytes message: {:02X?}", &track_chunk[index..index + 2]);
 
                 let message = &track_chunk[index..index + 2];
                 send_message(&mut midi_output, message.to_vec());
@@ -98,7 +104,7 @@ async fn play(
                 match &track_chunk[index] {
                     // System exclusive
                     0xF0 => {
-                        // println!("System exclusive");
+                        println!("System exclusive");
                         let length = &track_chunk[index + 1];
 
                         let mut data: Vec<u8> = track_chunk
@@ -115,7 +121,7 @@ async fn play(
 
                     // Meta event
                     0xFF => {
-                        // println!("Meta event");
+                        println!("Meta event");
                         index += 1;
 
                         let meta_event_type = track_chunk[index];
@@ -130,15 +136,15 @@ async fn play(
                             last_tempo_changed_time = time::Instant::now();
                             last_tempo_changed_delta_time = delta_time_counter;
 
-                            // println!("Tempo changed: {}", tempo);
+                            println!("Tempo changed: {}", tempo);
                         } else if meta_event_type == 0x58 {
-                            // println!(
-                            //     "Signature changed: {}, {}, {}, {}",
-                            //     track_chunk[index + 2],
-                            //     track_chunk[index + 3],
-                            //     track_chunk[index + 4],
-                            //     track_chunk[index + 5]
-                            // )
+                            println!(
+                                "Signature changed: {}, {}, {}, {}",
+                                track_chunk[index + 2],
+                                track_chunk[index + 3],
+                                track_chunk[index + 4],
+                                track_chunk[index + 5]
+                            )
                         }
                         index += 1;
 
@@ -159,22 +165,26 @@ async fn play(
 
 #[tauri::command]
 fn load_file(file_path: String, file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
-    let mut file = File::open(file_path).expect("ファイルの読み込みに失敗しました。");
+    let mut file: File = File::open(file_path).expect("ファイルの読み込みに失敗しました。");
     let mut buffer: Vec<u8> = vec![];
     file.read_to_end(&mut buffer).unwrap();
+    println!("{:?}", buffer);
     *file_buffer.file.lock().unwrap() = buffer;
     Ok(())
 }
 
 fn main() {
+    // MIDI output open
+    let midi_output = open_port().unwrap();
+
     tauri::Builder::default()
         .manage(FileBuffer {
             file: Default::default(),
         })
+        .manage(MidiOutput {
+            midi_output_connection: Mutex::new(midi_output),
+        })
         .invoke_handler(tauri::generate_handler![play, load_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-
-    // MIDI output open
-    let mut midi_output = open_port().unwrap();
 }
