@@ -1,7 +1,5 @@
-# Tauri + Solid + Typescript
+# STed2-clone
 
-This template should help get you started developing with Tauri, Solid and Typescript in Vite.
-
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+本ソフトでは表示フォントに「KHドットフォント」(http://jikasei.me/font/kh-dotfont/) を使用しています。
+Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)
+© Keitarou Hiraki, Font Silo 1990-2015.
