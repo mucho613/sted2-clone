@@ -18,6 +18,9 @@
     "@biomejs/biome": "1.4.1",
     "@tauri-apps/cli": "^1.5.7",
     "@types/node": "^20.10.4",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
     "typescript": "^5.3.3",
     "vite": "^4.5.1",
     "vite-plugin-solid": "^2.8.0"

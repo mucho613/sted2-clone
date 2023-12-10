@@ -1,14 +1,25 @@
-:root {
-  font-family: 'PixelMPlus12', Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 12px;
-  line-height: 24px;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  background-color: #070016;
-  color: #E7E7E7;
+@layer base {
+  html {
+    font-family: "KHドット小伝馬町16", system-ui, sans-serif;
+    background-color: black;
+    color: white;
+    line-height: 1;
+  }
+}
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+input {
+  color: black;
+}
+
+button {
+  font-family: inherit;
+}
+
+@font-face {
+  font-family: "KHドット小伝馬町16";
+  src: url("./assets/font/KH-Dot-Kodenmachou-16.woff") format('woff'),
 }
