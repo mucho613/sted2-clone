@@ -3,14 +3,11 @@ import { PlayStatus } from "./feature/TrackMonitor";
 
 export function useInvoke() {
   function loadFile(filePath: string) {
-    invoke(
-      "load_file",
-      { filePath }
-    );
+    invoke("load_file", { filePath });
   }
 
   function play() {
-    invoke("play")
+    invoke("play");
   }
 
   function getPlayStatus(): Promise<PlayStatus> {
@@ -20,6 +17,6 @@ export function useInvoke() {
   return {
     loadFile,
     play,
-    getPlayStatus
-  }
+    getPlayStatus,
+  };
 }

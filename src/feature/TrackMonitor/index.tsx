@@ -1,26 +1,26 @@
 import { onCleanup, onMount } from "solid-js";
-import { calculateKeyPositionOnlyBlackKeys, calculateKeyPositionOnlyWhiteKeys } from "./logic";
 import { TRACK_GAP, WHITE_KEY_HEIGHT, WHITE_KEY_WIDTH } from "./constant";
+import { calculateKeyPositionOnlyBlackKeys, calculateKeyPositionOnlyWhiteKeys } from "./logic";
 
 export type PlayStatus = {
   channels: {
     noteOnKeys: number[];
     pitchbend: number;
   }[];
-}
+};
 
 type Props = {
   getPlayStatus: () => Promise<PlayStatus>;
-}
+};
 
 function TrackMonitor(props: Props) {
-  let canvas: HTMLCanvasElement | undefined = undefined;
+  const canvas: HTMLCanvasElement | undefined = undefined;
 
   const WIDTH = 600 as const;
   const HEIGHT = 580 as const;
 
   onMount(() => {
-    if(!canvas) return;
+    if (!canvas) return;
     const context = canvas.getContext("2d");
 
     let frame = requestAnimationFrame(loop);
@@ -28,7 +28,7 @@ function TrackMonitor(props: Props) {
     function loop() {
       frame = requestAnimationFrame(loop);
 
-      if(!context) return;
+      if (!context) return;
 
       // props.getPlayStatus().then(
       //   (playStatus) => {
@@ -96,8 +96,8 @@ function TrackMonitor(props: Props) {
       // );
     }
 
-    onCleanup(() => cancelAnimationFrame(frame))
-  })
+    onCleanup(() => cancelAnimationFrame(frame));
+  });
 
   return (
     <>

@@ -10,7 +10,7 @@ function App() {
   return (
     <div class="container">
       <div>
-        <input type="text" onInput={(e) => setFilePath(e.target.value)}/>
+        <input type="text" onInput={(e) => setFilePath(e.target.value)} />
         <button type="button" onClick={() => loadFile(filePath())}>
           Load file
         </button>
@@ -19,7 +19,7 @@ function App() {
         </button>
       </div>
 
-      <TrackMonitor getPlayStatus={getPlayStatus}/>
+      <TrackMonitor getPlayStatus={getPlayStatus} />
     </div>
   );
 }
