@@ -1,14 +1,27 @@
+use midir::{MidiIO, MidiOutput, MidiOutputConnection};
+
 const MIDI_INITIALIZE_ERROR_MESSAGE: &str = "MIDI 入出力機能を初期化できませんでした。";
 
-pub fn open_port() -> Result<midir::MidiOutputConnection, String> {
+pub fn midi_output() -> MidiOutput {
     let midi_outputs =
-        midir::MidiOutput::new("STed2-clone client").expect(MIDI_INITIALIZE_ERROR_MESSAGE);
-    let midi_output = &midi_outputs.ports()[0]; // TODO: ポートを選択可能にする
-    let connect_out = midi_outputs
-        .connect(&midi_output, "Primary port")
-        .expect(MIDI_INITIALIZE_ERROR_MESSAGE);
+        midir::MidiOutput::new("STed2-clone MIDI Output").expect(MIDI_INITIALIZE_ERROR_MESSAGE);
+    midi_outputs
+}
 
-    Ok(connect_out)
+pub fn open_port(index: usize) -> () {
+    let midi_output = midi_output();
+
+    let selected_port = &midi_output.ports()[index];
+
+    let device_name = midi_output
+        .port_name(&selected_port)
+        .expect("ポート名の取得に失敗しました。");
+
+    println!("Connected to: {}", device_name);
+
+    midi_output
+        .connect(&selected_port, "Primary port")
+        .expect(MIDI_INITIALIZE_ERROR_MESSAGE);
 }
 
 pub fn send_message(connect_out: &mut midir::MidiOutputConnection, message: Vec<u8>) {
