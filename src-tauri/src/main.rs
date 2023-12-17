@@ -202,17 +202,18 @@ fn main() {
                 .menu_item_id()
                 .parse::<usize>()
                 .expect("Failed to parse");
+
             let midi_output = event.window().state::<MidiOutput>();
 
-            let mut out = midi_output.midi_output_connection.lock().unwrap().take();
+            let mut out = midi_output.midi_output_connection.lock().expect("Mutex error");
 
-            out = Some(open_port(parsed));
+            *out = Some(open_port(parsed));
         })
         .manage(FileBuffer {
             file: Default::default(),
         })
         .manage(MidiOutput {
-            midi_output_connection: Mutex::new(Default::default()),
+            midi_output_connection: Default::default(),
         })
         .invoke_handler(tauri::generate_handler![play, load_file])
         .run(tauri::generate_context!())
