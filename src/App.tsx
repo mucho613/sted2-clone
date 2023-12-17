@@ -5,7 +5,21 @@ import { useInvoke } from "./useInvoke";
 function App() {
   const [filePath, setFilePath] = createSignal("");
 
+  const [error, setError] = createSignal("");
+
   const { loadFile, play, getPlayStatus } = useInvoke();
+
+  const handleLoad = () => {
+    loadFile(filePath())
+      .then(() => setError(""))
+      .catch((error) => setError(error));
+  };
+
+  const handlePlay = () => {
+    play()
+      .then(() => setError(""))
+      .catch((error) => setError(error));
+  };
 
   return (
     <div class="container m-4">
@@ -16,14 +30,14 @@ function App() {
             <button
               class="pl-px text-left h-[17px] bg-blue leading-none"
               type="button"
-              onClick={() => loadFile(filePath())}
+              onClick={handleLoad}
             >
               LOAD
             </button>
             <button
               class="pl-px text-left h-[17px] bg-blue leading-none"
               type="button"
-              onClick={play}
+              onClick={handlePlay}
             >
               PLAY
             </button>
@@ -35,6 +49,8 @@ function App() {
       </div>
 
       {/* <TrackMonitor getPlayStatus={getPlayStatus} /> */}
+
+      <p class="fixed bottom-4 left-4">{error()}</p>
     </div>
   );
 }

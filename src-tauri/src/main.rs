@@ -1,33 +1,16 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod file;
 mod midi;
-mod player
+mod player;
+mod state;
 
+use file::load::load_file;
+use midi::{midi_output, open_port};
 use player::play;
-use std::{fs::File, io::Read, sync::Mutex};
-use midi::{open_port, midi_output};
-use midir::MidiOutputConnection;
-use tauri::{CustomMenuItem, Mana::playger, Menu, MenuEntry, State, Submenu};
-;
-struct FileBuffer {
-    file: Mutex<Vec<u8>>,
-}
-
-struct MidiOutput {
-    midi_output_connection: Mutex<Option<MidiOutputConnection>>,
-}
-
-#[tauri::command]
-fn load_file(file_path: String, file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
-    let mut file: File = File::open(file_path).expect("ファイルの読み込みに失敗しました。");
-    let mut buffer: Vec<u8> = vec![];
-    file.read_to_end(&mut buffer).unwrap();
-    println!("{:?}", buffer);
-    *file_buffer.file.lock().unwrap() = buffer;
-    Ok(())
-}
-
+use state::{FileBuffer, MidiOutput};
+use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
 fn main() {
     // MIDI output open
     let midi_output = midi_output();
@@ -57,7 +40,10 @@ fn main() {
 
             let midi_output = event.window().state::<MidiOutput>();
 
-            *midi_output.midi_output_connection.lock().expect("Mutex error") = Some(open_port(parsed));
+            *midi_output
+                .midi_output_connection
+                .lock()
+                .expect("Mutex error") = Some(open_port(parsed));
         })
         .manage(FileBuffer {
             file: Default::default(),

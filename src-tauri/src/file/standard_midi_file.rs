@@ -1,6 +1,4 @@
-use serde::Serialize;
-
-mod smf_format;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct HeaderChunk {
@@ -19,7 +17,7 @@ pub struct TrackChunk {
 }
 
 impl HeaderChunk {
-    fn validate_header_chunk(&self) {
+    fn validate_header_chunk(&self) -> bool {
         self.chunk_type[0] == b'M' && // 0x4D
         self.chunk_type[1] == b'T' && // 0x54
         self.chunk_type[2] == b'h' && // 0x68
@@ -28,7 +26,7 @@ impl HeaderChunk {
 }
 
 impl TrackChunk {
-    fn validate_track_chunk(&self) {
+    fn validate_track_chunk(&self) -> bool {
         self.chunk_type[0] == b'M' && // 0x4D
         self.chunk_type[1] == b'T' && // 0x54
         self.chunk_type[2] == b'r' && // 0x72

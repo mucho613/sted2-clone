@@ -1,18 +1,23 @@
-mod player;
-
 use tauri::State;
 
-use crate::{FileBuffer, MidiOutput};
+use crate::{midi::send_message, FileBuffer, MidiOutput};
 
 #[tauri::command]
 pub fn play(
     file_buffer: State<'_, FileBuffer>,
     midi_output: State<'_, MidiOutput>,
 ) -> Result<(), String> {
-let file_buffer = file_buffer.file.lock().unwrap();
+    let file_buffer = file_buffer.file.lock().unwrap();
+    if file_buffer.len() == 0 {
+        return Err("ファイルが読み込まれていません。".to_string());
+    }
+
     let mut midi_output = midi_output.midi_output_connection.lock().unwrap();
 
-    let mut midi_output = midi_output.take().unwrap();
+    let mut midi_output = match midi_output.take() {
+        Some(port) => port,
+        None => return Err("MIDI 出力ポートが選択されていません。".to_string()),
+    };
 
     let header_chunk = &file_buffer[0..14];
 
@@ -21,7 +26,7 @@ let file_buffer = file_buffer.file.lock().unwrap();
 
     let mut index = 8;
 
-    let play_start_time = time::Instant::now();
+    let play_start_time = std::time::Instant::now();
     let mut delta_time_counter: u32 = 0;
     let mut last_tempo_changed_time = play_start_time;
     let mut last_tempo_changed_delta_time = delta_time_counter;
@@ -52,7 +57,7 @@ let file_buffer = file_buffer.file.lock().unwrap();
         println!("Delta time: {}", delta_time);
 
         loop {
-            let now = time::Instant::now();
+            let now = std::time::Instant::now();
 
             let elapsed_time = now - last_tempo_changed_time;
 
@@ -66,7 +71,7 @@ let file_buffer = file_buffer.file.lock().unwrap();
                 break;
             }
 
-            thread::sleep(time::Duration::from_millis(1));
+            std::thread::sleep(std::time::Duration::from_millis(1));
         }
 
         delta_time_counter += delta_time;
@@ -124,7 +129,7 @@ let file_buffer = file_buffer.file.lock().unwrap();
                                 | u32::from(track_chunk[index + 3]) << 8
                                 | u32::from(track_chunk[index + 4]);
 
-                            last_tempo_changed_time = time::Instant::now();
+                            last_tempo_changed_time = std::time::Instant::now();
                             last_tempo_changed_delta_time = delta_time_counter;
 
                             println!("Tempo changed: {}", tempo);

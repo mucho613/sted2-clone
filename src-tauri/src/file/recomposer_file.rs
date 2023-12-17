@@ -1,5 +1,3 @@
-mod recomposer_format;
-
 pub struct Header {
     header_string: [u8; 32],
     title: [u8; 64],
