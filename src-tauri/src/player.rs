@@ -1,5 +1,18 @@
-fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
-    let file_buffer = file_buffer.file.lock().unwrap();
+mod player;
+
+use tauri::State;
+
+use crate::{FileBuffer, MidiOutput};
+
+#[tauri::command]
+pub fn play(
+    file_buffer: State<'_, FileBuffer>,
+    midi_output: State<'_, MidiOutput>,
+) -> Result<(), String> {
+let file_buffer = file_buffer.file.lock().unwrap();
+    let mut midi_output = midi_output.midi_output_connection.lock().unwrap();
+
+    let mut midi_output = midi_output.take().unwrap();
 
     let header_chunk = &file_buffer[0..14];
 
@@ -36,7 +49,7 @@ fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
             panic!("Parsing variablel-length quantity failed.");
         };
 
-        // println!("Delta time: {}", delta_time);
+        println!("Delta time: {}", delta_time);
 
         loop {
             let now = time::Instant::now();
@@ -62,7 +75,7 @@ fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
         match track_chunk[index] & 0xF0 {
             // 3 bytes message
             0x80 | 0x90 | 0xA0 | 0xB0 | 0xE0 => {
-                // println!("3 bytes message: {:02X?}", &track_chunk[index..index + 3]);
+                println!("3 bytes message: {:02X?}", &track_chunk[index..index + 3]);
 
                 let message: &[u8] = &track_chunk[index..index + 3];
                 send_message(&mut midi_output, message.to_vec());
@@ -71,7 +84,7 @@ fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
             }
             // 2 bytes message
             0xC0 | 0xD0 => {
-                // println!("2 bytes message: {:02X?}", &track_chunk[index..index + 2]);
+                println!("2 bytes message: {:02X?}", &track_chunk[index..index + 2]);
 
                 let message = &track_chunk[index..index + 2];
                 send_message(&mut midi_output, message.to_vec());
@@ -82,7 +95,7 @@ fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
                 match &track_chunk[index] {
                     // System exclusive
                     0xF0 => {
-                        // println!("System exclusive");
+                        println!("System exclusive");
                         let length = &track_chunk[index + 1];
 
                         let mut data: Vec<u8> = track_chunk
@@ -99,7 +112,7 @@ fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
 
                     // Meta event
                     0xFF => {
-                        // println!("Meta event");
+                        println!("Meta event");
                         index += 1;
 
                         let meta_event_type = track_chunk[index];
@@ -114,15 +127,15 @@ fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
                             last_tempo_changed_time = time::Instant::now();
                             last_tempo_changed_delta_time = delta_time_counter;
 
-                            // println!("Tempo changed: {}", tempo);
+                            println!("Tempo changed: {}", tempo);
                         } else if meta_event_type == 0x58 {
-                            // println!(
-                            //     "Signature changed: {}, {}, {}, {}",
-                            //     track_chunk[index + 2],
-                            //     track_chunk[index + 3],
-                            //     track_chunk[index + 4],
-                            //     track_chunk[index + 5]
-                            // )
+                            println!(
+                                "Signature changed: {}, {}, {}, {}",
+                                track_chunk[index + 2],
+                                track_chunk[index + 3],
+                                track_chunk[index + 4],
+                                track_chunk[index + 5]
+                            )
                         }
                         index += 1;
 
@@ -137,4 +150,6 @@ fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
             _ => panic!("Unknown event - {:?}", &track_chunk[index..index + 5]),
         }
     }
+
+    Ok(())
 }
