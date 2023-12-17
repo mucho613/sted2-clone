@@ -1,7 +1,4 @@
-/// 割り込みで実行される関数
-fn play(
-    file_buffer: State<'_, FileBuffer>,
-) -> Result<(), String> {
+fn play(file_buffer: State<'_, FileBuffer>) -> Result<(), String> {
     let file_buffer = file_buffer.file.lock().unwrap();
 
     let header_chunk = &file_buffer[0..14];

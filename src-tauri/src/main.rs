@@ -6,7 +6,7 @@ mod midi;
 use crate::midi::{open_port, send_message};
 use midi::midi_output;
 use midir::MidiOutputConnection;
-use tauri::{CustomMenuItem, Menu, MenuEntry, MenuItem, State, Submenu};
+use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, MenuItem, State, Submenu};
 
 struct FileBuffer {
     file: Mutex<Vec<u8>>,
@@ -24,10 +24,7 @@ async fn play(
     let file_buffer = file_buffer.file.lock().unwrap();
     let mut midi_output = midi_output.midi_output_connection.lock().unwrap();
 
-    let mut midi_output = match midi_output.take() {
-        Some(x) => x,
-        _ => panic!(),
-    };
+    let mut midi_output = midi_output.take().unwrap();
 
     let header_chunk = &file_buffer[0..14];
 
@@ -205,13 +202,17 @@ fn main() {
                 .menu_item_id()
                 .parse::<usize>()
                 .expect("Failed to parse");
-            open_port(parsed);
+            let midi_output = event.window().state::<MidiOutput>();
+
+            let mut out = midi_output.midi_output_connection.lock().unwrap().take();
+
+            out = Some(open_port(parsed));
         })
         .manage(FileBuffer {
             file: Default::default(),
         })
         .manage(MidiOutput {
-            midi_output_connection: Mutex::new(None),
+            midi_output_connection: Mutex::new(Default::default()),
         })
         .invoke_handler(tauri::generate_handler![play, load_file])
         .run(tauri::generate_context!())
