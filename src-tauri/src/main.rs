@@ -11,10 +11,9 @@ use midi::{midi_output, open_port};
 use player::play;
 use state::{FileBuffer, MidiOutput};
 use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
-fn main() {
-    // MIDI output open
-    let midi_output = midi_output();
 
+fn main() {
+    let midi_output = midi_output();
     let ports = midi_output.ports();
     let port_items: Vec<MenuEntry> = ports
         .iter()
@@ -38,12 +37,14 @@ fn main() {
                 .parse::<usize>()
                 .expect("Failed to parse");
 
-            let midi_output = event.window().state::<MidiOutput>();
+            let midi_output_state = event.window().state::<MidiOutput>();
 
-            *midi_output
+            let port = open_port(parsed).unwrap();
+
+            *midi_output_state
                 .midi_output_connection
                 .lock()
-                .expect("Mutex error") = Some(open_port(parsed));
+                .expect("Mutex error") = Some(port);
         })
         .manage(FileBuffer {
             file: Default::default(),
