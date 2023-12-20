@@ -4,12 +4,15 @@
 mod file;
 mod midi;
 mod player;
+mod song;
 mod state;
+
+use std::sync::Mutex;
 
 use file::load::load_file;
 use midi::{midi_output, open_port};
 use player::play;
-use state::{FileBuffer, MidiOutput};
+use state::{FileState, MidiOutputState};
 use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
 
 fn main() {
@@ -37,7 +40,7 @@ fn main() {
                 .parse::<usize>()
                 .expect("Failed to parse");
 
-            let midi_output_state = event.window().state::<MidiOutput>();
+            let midi_output_state = event.window().state::<MidiOutputState>();
 
             let port = open_port(parsed).unwrap();
 
@@ -46,10 +49,11 @@ fn main() {
                 .lock()
                 .expect("Mutex error") = Some(port);
         })
-        .manage(FileBuffer {
+        .manage(FileState {
             file: Default::default(),
+            song: Mutex::new(None),
         })
-        .manage(MidiOutput {
+        .manage(MidiOutputState {
             midi_output_connection: Default::default(),
         })
         .invoke_handler(tauri::generate_handler![play, load_file])

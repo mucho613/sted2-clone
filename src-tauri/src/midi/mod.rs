@@ -14,6 +14,6 @@ pub fn open_port(index: usize) -> Result<MidiOutputConnection, ConnectError<Midi
     midi_output.connect(&selected_port, "Primary port")
 }
 
-pub fn send_message(connect_out: &mut midir::MidiOutputConnection, message: Vec<u8>) {
-    connect_out.send(&message).unwrap();
+pub fn send_message(connect_out: &mut midir::MidiOutputConnection, message: &Vec<u8>) {
+    connect_out.send(message).unwrap();
 }
