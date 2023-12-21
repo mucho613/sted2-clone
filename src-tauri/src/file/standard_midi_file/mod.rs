@@ -1,4 +1,12 @@
+mod load;
+
 use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct StandardMidiFile {
+    header_chunk: HeaderChunk,
+    track_chunk: Vec<TrackChunk>,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct HeaderChunk {
@@ -13,7 +21,20 @@ pub struct HeaderChunk {
 pub struct TrackChunk {
     chunk_type: [u8; 4],
     data_length: u32,
-    data_body: Vec<u8>,
+    data_body: Vec<Event>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Event {
+    delta_time: u32,
+    event_body: EventBody,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum EventBody {
+    ChannelMessage(Vec<u8>),
+    SystemExclusiveMessage(Vec<u8>),
+    TempoChangeEvent(u32),
 }
 
 impl HeaderChunk {

@@ -16,6 +16,7 @@ pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result
     let mut buffer: Vec<u8> = vec![];
     file.read_to_end(&mut buffer).unwrap();
 
+    // SMF として格納
     println!("変換開始");
     let song = convert(&buffer);
     println!("変換終了");

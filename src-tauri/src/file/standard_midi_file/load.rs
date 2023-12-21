@@ -1,11 +1,39 @@
 use crate::song::song::EventBody;
 
-use super::song::{Event, Song};
+use StandardMidiFile::Event;
 
-pub fn convert(file: &Vec<u8>) -> Song {
-    let header_chunk = &file[0..14];
-    let track_chunk = &file[14..];
+use super::{HeaderChunk, StandardMidiFile, TrackChunk};
 
+pub fn load(file: &Vec<u8>) -> StandardMidiFile {
+    let header_chunk_bytes = &file[0..14];
+
+    let header_chunk = HeaderChunk {
+        chunk_type: &header_chunk_bytes[0..4],
+        data_length: u32::from(&header_chunk_bytes[5]) << 24
+            | u32::from(&header_chunk_bytes[6]) << 16
+            | u32::from(&header_chunk_bytes[7]) << 8
+            | u32::from(&header_chunk_bytes[8]),
+        format: &header_chunk_bytes[10],
+        number_of_tracks: &header_chunk_bytes[12],
+        time_base: u16::from(&header_chunk_bytes[13]) << 8 | u16::from(&header_chunk_bytes[14]),
+    };
+
+    let track_chunk_bytes = &file[14..];
+
+    // Divide bytes to tracks
+    track_chunk_bytes.
+
+    let track_chunks = track_chunk_bytes.map(|bytes| load_track(bytes));
+
+    let time_base = u32::from(header_chunk[12]) << 8 | u32::from(header_chunk[13]);
+
+    StandardMidiFile {
+        header_chunk,
+        track_chunk: todo!(),
+    }
+}
+
+pub fn load_track(bytes: Vec<u8>) -> TrackChunk {
     let mut events: Vec<Event> = vec![];
 
     let mut index = 8;
@@ -108,10 +136,10 @@ pub fn convert(file: &Vec<u8>) -> Song {
         }
     }
 
-    let time_base = u32::from(header_chunk[12]) << 8 | u32::from(header_chunk[13]);
-
-    Song {
-        time_base: time_base,
-        events: events,
+    TrackChunk {
+        chunk_type: todo!(),
+        data_length: todo!(),
+        data_body: todo!(),
     }
+
 }
