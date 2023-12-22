@@ -83,7 +83,7 @@ pub fn load_track(bytes: &[u8]) -> TrackChunk {
             0x80 | 0x90 | 0xA0 | 0xB0 | 0xE0 => {
                 let message = bytes[index..index + 3].to_vec();
                 events.push(Event {
-                    delta_time: delta_time,
+                    delta_time,
                     event_body: EventBody::ChannelMessage(message),
                 });
                 index += 3;
@@ -92,7 +92,7 @@ pub fn load_track(bytes: &[u8]) -> TrackChunk {
             0xC0 | 0xD0 => {
                 let message = bytes[index..index + 2].to_vec();
                 events.push(Event {
-                    delta_time: delta_time,
+                    delta_time,
                     event_body: EventBody::ChannelMessage(message),
                 });
                 index += 2;
@@ -110,7 +110,7 @@ pub fn load_track(bytes: &[u8]) -> TrackChunk {
                         data.remove(1);
 
                         events.push(Event {
-                            delta_time: delta_time,
+                            delta_time,
                             event_body: EventBody::ChannelMessage(data),
                         });
 
@@ -132,7 +132,7 @@ pub fn load_track(bytes: &[u8]) -> TrackChunk {
                                 | u32::from(bytes[index + 4]);
 
                             events.push(Event {
-                                delta_time: delta_time,
+                                delta_time,
                                 event_body: EventBody::TempoChangeEvent(tempo),
                             });
                         } else if meta_event_type == 0x58 {

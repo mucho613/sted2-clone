@@ -38,7 +38,7 @@ pub fn convert(file: &Vec<u8>) -> Song {
             0x80 | 0x90 | 0xA0 | 0xB0 | 0xE0 => {
                 let message = track_chunk[index..index + 3].to_vec();
                 events.push(Event {
-                    delta_time: delta_time,
+                    delta_time,
                     event_body: EventBody::ChannelMessage(message),
                 });
                 index += 3;
@@ -47,7 +47,7 @@ pub fn convert(file: &Vec<u8>) -> Song {
             0xC0 | 0xD0 => {
                 let message = track_chunk[index..index + 2].to_vec();
                 events.push(Event {
-                    delta_time: delta_time,
+                    delta_time,
                     event_body: EventBody::ChannelMessage(message),
                 });
                 index += 2;
@@ -66,7 +66,7 @@ pub fn convert(file: &Vec<u8>) -> Song {
                         data.remove(1);
 
                         events.push(Event {
-                            delta_time: delta_time,
+                            delta_time,
                             event_body: EventBody::ChannelMessage(data),
                         });
 
@@ -88,7 +88,7 @@ pub fn convert(file: &Vec<u8>) -> Song {
                                 | u32::from(track_chunk[index + 4]);
 
                             events.push(Event {
-                                delta_time: delta_time,
+                                delta_time,
                                 event_body: EventBody::TempoChangeEvent(tempo),
                             });
                         } else if meta_event_type == 0x58 {
@@ -110,8 +110,5 @@ pub fn convert(file: &Vec<u8>) -> Song {
 
     let time_base = u32::from(header_chunk[12]) << 8 | u32::from(header_chunk[13]);
 
-    Song {
-        time_base: time_base,
-        events: events,
-    }
+    Song { time_base, events }
 }
