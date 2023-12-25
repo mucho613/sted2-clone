@@ -1,23 +1,15 @@
 use super::{Event, EventBody, HeaderChunk, StandardMidiFile, TrackChunk};
 
-pub fn load(file: &[u8]) -> StandardMidiFile {
-    let header_chunk_bytes = &file[0..14];
+use nom::{
+    bytes::streaming::{tag, take},
+    number::streaming::{be_u16, be_u32},
+};
 
-    let header_chunk = HeaderChunk {
-        chunk_type: [
-            header_chunk_bytes[0],
-            header_chunk_bytes[1],
-            header_chunk_bytes[2],
-            header_chunk_bytes[3],
-        ],
-        data_length: u32::from(header_chunk_bytes[5]) << 24
-            | u32::from(header_chunk_bytes[6]) << 16
-            | u32::from(header_chunk_bytes[7]) << 8
-            | u32::from(header_chunk_bytes[8]),
-        format: u16::from(header_chunk_bytes[9]) << 8 | u16::from(header_chunk_bytes[10]),
-        number_of_tracks: u16::from(header_chunk_bytes[11]) << 8
-            | u16::from(header_chunk_bytes[12]),
-        time_base: u16::from(header_chunk_bytes[13]) << 8 | u16::from(header_chunk_bytes[14]),
+pub fn load(file: &[u8]) -> Result<StandardMidiFile, String> {
+    let header_chunk_bytes = &file[0..14];
+    let header_chunk = match parse_header_chunk(header_chunk_bytes) {
+        Ok(header_chunk) => header_chunk,
+        Err(error) => return Err(error),
     };
 
     let track_chunk_bytes = &file[14..];
@@ -28,12 +20,28 @@ pub fn load(file: &[u8]) -> StandardMidiFile {
     // let track_chunks = track_chunk_bytes_divided
     //     .iter();
 
-    let time_base = u32::from(header_chunk_bytes[12]) << 8 | u32::from(header_chunk_bytes[13]);
-
-    StandardMidiFile {
+    Ok(StandardMidiFile {
         header_chunk,
         track_chunk: vec![todo!()],
-    }
+    })
+}
+
+pub fn parse_header_chunk(bytes: &[u8]) -> Result<HeaderChunk, String> {
+    let (bytes, _) = tag("MThd")(bytes).expect("\"MThd\" not found.");
+    let (bytes, _) = take(4u8)(bytes).expect("Failed to read data length.");
+    let (bytes, format) = take<[u8]>(2u8)(bytes).expect("Failed to read format");
+    let (bytes, number_of_tracks) = take(2u8)(bytes).expect("Failed to read number of tracks");
+    let (bytes, time_base) = take(2u8)(bytes).expect("Failed to read time base");
+
+    let format = be_u16(format).expect("Failed to parse").1;
+    let number_of_tracks = be_u16(number_of_tracks).expect("Failed to parse").1;
+    let time_base = be_u16(time_base).expect("Failed to parse").1;
+
+    Ok(HeaderChunk {
+        format,
+        number_of_tracks,
+        time_base,
+    })
 }
 
 pub fn divide_track_chunk_bytes(bytes: &[u8]) -> Vec<&[u8]> {
