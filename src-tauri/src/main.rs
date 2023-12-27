@@ -4,7 +4,6 @@
 mod file;
 mod midi;
 mod player;
-mod song;
 mod state;
 
 use std::sync::Mutex;
@@ -51,7 +50,7 @@ fn main() {
         })
         .manage(FileState {
             file: Default::default(),
-            song: Mutex::new(None),
+            smf: Mutex::new(None),
         })
         .manage(MidiOutputState {
             midi_output_connection: Default::default(),

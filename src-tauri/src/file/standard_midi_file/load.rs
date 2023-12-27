@@ -1,5 +1,5 @@
 use super::{
-    parse_header_chunk::parse_header_chunk, Event, EventBody, StandardMidiFile, TrackChunk,
+    parse_header_chunk::parse_header_chunk, parse_track_chunk::parse_track_chunk, StandardMidiFile,
 };
 
 pub fn load(file: &[u8]) -> Result<StandardMidiFile, String> {
@@ -9,13 +9,13 @@ pub fn load(file: &[u8]) -> Result<StandardMidiFile, String> {
         Err(error) => return Err(error),
     };
 
-    let track_chunk_bytes = &file[14..];
-
-    // let track_chunks = track_chunk_bytes_divided
-    //     .iter();
+    let track_chunk = match parse_track_chunk(&file[14..]) {
+        Ok(track_chunk) => track_chunk,
+        Err(error) => return Err(error),
+    };
 
     Ok(StandardMidiFile {
         header_chunk,
-        track_chunk: vec![],
+        track_chunk: vec![track_chunk.1],
     })
 }

@@ -15,8 +15,17 @@ pub fn parse_track_chunk(bytes: &[u8]) -> Result<(&[u8], TrackChunk), String> {
 
     let mut events: Vec<Event> = vec![];
 
+    let mut bytes_track_parsed = bytes;
+
     loop {
-        let (bytes, event) = parse_event(bytes).expect("Failed to parse event.");
+        if bytes_track_parsed.is_empty() {
+            // End of track not found
+            break;
+        }
+
+        let (bytes, event) = parse_event(bytes_track_parsed).expect("Failed to parse event.");
+
+        bytes_track_parsed = bytes;
 
         if event.event_body == EventBody::EndOfTrack {
             events.push(event);
@@ -26,7 +35,7 @@ pub fn parse_track_chunk(bytes: &[u8]) -> Result<(&[u8], TrackChunk), String> {
         events.push(event);
     }
 
-    Ok((bytes, TrackChunk { data_body: events }))
+    Ok((bytes_track_parsed, TrackChunk { data_body: events }))
 }
 
 #[test]
@@ -36,7 +45,7 @@ fn empty_track() {
             0x4D, 0x54, 0x72, 0x6B, // "MTrk"
             0x00, 0x00, 0x00, 0x00, // data length
         ]),
-        Ok((vec![], TrackChunk { data_body: vec![] }))
+        Ok((vec![].as_slice(), TrackChunk { data_body: vec![] }))
     );
 }
 
@@ -48,11 +57,43 @@ fn only_end_of_track() {
             0x00, 0x00, 0x00, 0x04, // data length
             0x00, 0xFF, 0x2F, 0x00, // end of track
         ]),
-        Ok(TrackChunk {
-            data_body: vec![Event {
-                delta_time: 0,
-                event_body: EventBody::EndOfTrack
-            }],
-        })
+        Ok((
+            vec![].as_slice(),
+            TrackChunk {
+                data_body: vec![Event {
+                    delta_time: 0,
+                    event_body: EventBody::EndOfTrack
+                }],
+            }
+        ))
+    );
+}
+
+#[test]
+fn only_gm_system_on() {
+    assert_eq!(
+        parse_track_chunk(&[
+            0x4D, 0x54, 0x72, 0x6B, // "MTrk"
+            0x00, 0x00, 0x00, 0x0C, // data length
+            0x00, 0xF0, 0x05, 0x7E, 0x7F, 0x09, 0x01, 0xF7, // GM Reset
+            0x00, 0xFF, 0x2F, 0x00, // end of track
+        ]),
+        Ok((
+            vec![].as_slice(),
+            TrackChunk {
+                data_body: vec![
+                    Event {
+                        delta_time: 0,
+                        event_body: EventBody::SystemExclusiveMessage(vec![
+                            0x7E, 0x7F, 0x09, 0x01, 0xF7
+                        ])
+                    },
+                    Event {
+                        delta_time: 0,
+                        event_body: EventBody::EndOfTrack
+                    }
+                ],
+            }
+        ))
     );
 }

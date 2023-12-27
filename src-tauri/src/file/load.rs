@@ -2,7 +2,7 @@ use std::{fs::File, io::Read};
 
 use tauri::State;
 
-use crate::{song::convert::convert, state::FileState};
+use crate::{file::standard_midi_file::load::load, state::FileState};
 
 #[tauri::command]
 pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result<(), String> {
@@ -18,12 +18,12 @@ pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result
 
     // SMF として格納
     println!("変換開始");
-    let song = convert(&buffer);
+    let smf = load(&buffer).expect("Failed to parse SMF");
     println!("変換終了");
 
     *file_buffer.file.lock().unwrap() = buffer;
 
-    *file_buffer.song.lock().unwrap() = Some(song);
+    *file_buffer.smf.lock().unwrap() = Some(smf);
 
     Ok(())
 }

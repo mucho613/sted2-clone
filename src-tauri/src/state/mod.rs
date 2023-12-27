@@ -2,11 +2,11 @@ use std::sync::Mutex;
 
 use midir::MidiOutputConnection;
 
-use crate::song::song::Song;
+use crate::file::standard_midi_file::StandardMidiFile;
 
 pub struct FileState {
     pub file: Mutex<Vec<u8>>,
-    pub song: Mutex<Option<Song>>,
+    pub smf: Mutex<Option<StandardMidiFile>>,
 }
 
 pub struct MidiOutputState {
