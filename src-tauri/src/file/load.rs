@@ -16,10 +16,8 @@ pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result
     let mut buffer: Vec<u8> = vec![];
     file.read_to_end(&mut buffer).unwrap();
 
-    // SMF として格納
-    println!("変換開始");
+    // SMF として格納する
     let smf = load(&buffer).expect("Failed to parse SMF");
-    println!("変換終了");
 
     *file_buffer.file.lock().unwrap() = buffer;
 

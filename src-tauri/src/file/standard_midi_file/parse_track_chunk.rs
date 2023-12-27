@@ -3,11 +3,9 @@ use nom::{
     error::Error,
 };
 
-use super::{
-    event::parse_event, variable_length_bytes::parse_variable_length_bytes, Event, EventBody,
-    TrackChunk,
-};
+use super::{event::parse_event, Event, EventBody, MetaEvent, TrackChunk};
 
+/// SMF の Track chunk をパースする
 pub fn parse_track_chunk(bytes: &[u8]) -> Result<(&[u8], TrackChunk), String> {
     let (bytes, _) = tag::<&str, &[u8], Error<&[u8]>>("MTrk")(bytes).expect("\"MTrk\" not found.");
     let (bytes, _) =
@@ -27,7 +25,7 @@ pub fn parse_track_chunk(bytes: &[u8]) -> Result<(&[u8], TrackChunk), String> {
 
         bytes_track_parsed = bytes;
 
-        if event.event_body == EventBody::EndOfTrack {
+        if event.event_body == EventBody::MetaEvent(MetaEvent::EndOfTrack) {
             events.push(event);
             break;
         }
@@ -62,7 +60,7 @@ fn only_end_of_track() {
             TrackChunk {
                 data_body: vec![Event {
                     delta_time: 0,
-                    event_body: EventBody::EndOfTrack
+                    event_body: EventBody::MetaEvent(MetaEvent::EndOfTrack)
                 }],
             }
         ))
@@ -70,7 +68,7 @@ fn only_end_of_track() {
 }
 
 #[test]
-fn only_gm_system_on() {
+fn gm_system_on() {
     assert_eq!(
         parse_track_chunk(&[
             0x4D, 0x54, 0x72, 0x6B, // "MTrk"
@@ -90,7 +88,7 @@ fn only_gm_system_on() {
                     },
                     Event {
                         delta_time: 0,
-                        event_body: EventBody::EndOfTrack
+                        event_body: EventBody::MetaEvent(MetaEvent::EndOfTrack)
                     }
                 ],
             }

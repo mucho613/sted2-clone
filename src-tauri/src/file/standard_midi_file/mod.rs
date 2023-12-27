@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StandardMidiFile {
     pub header_chunk: HeaderChunk,
-    pub track_chunk: Vec<TrackChunk>,
+    pub track_chunks: Vec<TrackChunk>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -34,7 +34,27 @@ pub struct Event {
 pub enum EventBody {
     ChannelMessage(Vec<u8>),
     SystemExclusiveMessage(Vec<u8>),
-    TempoChangeEvent(u32),
-    NoImplementEvent,
+    MetaEvent(MetaEvent),
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub enum MetaEvent {
+    SequenceNumber(u16),
+    TextEvent(String),
+    CopyRightNotice(String),
+    TrackName(String),
+    InstrumentName(String),
+    Lyric(String),
+    Marker(String),
+    CuePoint(String),
+    ProgramName(String),
+    DeviceName(String),
+    MidiChannelPrefix(u8),
+    MidiPort(u8),
     EndOfTrack,
+    TempoChangeEvent(u32),
+    SmpteOffset(u8, u8, u8, u8, u8),
+    TimeSignature(u8, u8, u8, u8),
+    KeySignature(i8, u8),
+    SequencerSpecificEvent(Vec<u8>),
 }

@@ -6,7 +6,8 @@ use nom::{
     number::streaming::be_u16,
 };
 
-pub fn parse_header_chunk(bytes: &[u8]) -> Result<HeaderChunk, String> {
+/// SMF の Header chunk をパースする
+pub fn parse_header_chunk(bytes: &[u8]) -> Result<(&[u8], HeaderChunk), String> {
     let (bytes, _) = tag::<&str, &[u8], Error<_>>("MThd")(bytes).expect("\"MThd\" not found.");
     let (bytes, _) = take::<u8, &[u8], Error<_>>(4u8)(bytes).expect("Failed to read data length.");
     let (bytes, format) = take::<u8, &[u8], Error<_>>(2u8)(bytes).expect("Failed to read format");
@@ -25,11 +26,14 @@ pub fn parse_header_chunk(bytes: &[u8]) -> Result<HeaderChunk, String> {
         .expect("Failed to parse")
         .1;
 
-    Ok(HeaderChunk {
-        format,
-        number_of_tracks,
-        time_base,
-    })
+    Ok((
+        bytes,
+        HeaderChunk {
+            format,
+            number_of_tracks,
+            time_base,
+        },
+    ))
 }
 
 #[test]
@@ -42,10 +46,13 @@ fn parse_header_chunk_test() {
             0x00, 0x02, // number of tracks
             0x00, 0x03, // time base
         ]),
-        Ok(HeaderChunk {
-            format: 1,
-            number_of_tracks: 2,
-            time_base: 3,
-        })
+        Ok((
+            vec![].as_slice(),
+            HeaderChunk {
+                format: 1,
+                number_of_tracks: 2,
+                time_base: 3,
+            }
+        ))
     );
 }
