@@ -1,4 +1,4 @@
-use super::{Event, EventBody, HeaderChunk, StandardMidiFile, TrackChunk};
+use super::HeaderChunk;
 
 use nom::error::Error;
 use nom::{

@@ -1,10 +1,5 @@
-use nom::{
-    bytes::streaming::{tag, take, take_till1},
-    error::Error,
-};
-
 pub fn parse_variable_length_bytes(bytes: &[u8]) -> Result<(&[u8], u32), &str> {
-    let mut length = 0;
+    let length;
     let delta_time = if bytes[0] & 0x80 == 0 {
         length = 1;
         u32::from(bytes[0])
@@ -72,5 +67,13 @@ fn quadruple_byte_test() {
             .unwrap()
             .1,
         268435455u32
+    );
+}
+
+#[test]
+fn invalid_test() {
+    assert_eq!(
+        parse_variable_length_bytes(&[0x81, 0x80, 0x80, 0x80]),
+        Err("Invalid delta time.")
     );
 }
