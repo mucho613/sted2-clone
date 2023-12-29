@@ -55,9 +55,7 @@ pub fn play(
         // Event type
         match &event.event_body {
             // Channel message
-            EventBody::ChannelMessage(message) => {
-                send_message(&mut midi_output, &message);
-            }
+            EventBody::ChannelMessage(message) => send_message(&mut midi_output, &message),
             EventBody::SystemExclusiveMessage(message) => send_message(&mut midi_output, message),
             EventBody::MetaEvent(MetaEvent::TempoChangeEvent(tempo)) => {
                 current_tempo = *tempo;

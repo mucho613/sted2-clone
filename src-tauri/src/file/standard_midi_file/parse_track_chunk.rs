@@ -18,8 +18,6 @@ pub fn parse_track_chunk(bytes: &[u8]) -> Result<(&[u8], TrackChunk), String> {
     // ランニングステータスに対応するため、直前にパースしたステータスバイトを保持する
     let mut latest_status_byte: Option<u8> = None;
 
-    bytes_track_parsed = bytes;
-
     loop {
         if bytes_track_parsed.is_empty() {
             // End of track not found

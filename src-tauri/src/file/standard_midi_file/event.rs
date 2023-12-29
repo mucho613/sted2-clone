@@ -19,8 +19,7 @@ pub fn parse_event(bytes: &[u8], prev_status_byte: Option<u8>) -> Result<(&[u8],
     let (bytes, event) = match event_type_byte {
         // 3 bytes message
         0x80..=0xBF | 0xE0..=0xEF => {
-            let mut message = bytes[0..2].to_vec();
-            message.insert(0, event_type_byte);
+            let message = [event_type_byte, bytes[0], bytes[1]].to_vec();
             (
                 &bytes[2..],
                 Event {
@@ -31,8 +30,7 @@ pub fn parse_event(bytes: &[u8], prev_status_byte: Option<u8>) -> Result<(&[u8],
         }
         // 2 bytes message
         0xC0..=0xDF => {
-            let mut message = bytes[0..1].to_vec();
-            message.insert(0, event_type_byte);
+            let message = [event_type_byte, bytes[0]].to_vec();
             (
                 &bytes[1..],
                 Event {
