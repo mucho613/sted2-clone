@@ -2,6 +2,7 @@ mod event;
 pub mod load;
 mod parse_header_chunk;
 mod parse_track_chunk;
+mod status_byte;
 mod variable_length_bytes;
 
 use serde::{Deserialize, Serialize};

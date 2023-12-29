@@ -12,8 +12,7 @@ pub fn load(file: &[u8]) -> Result<StandardMidiFile, String> {
     let mut track_chunks: Vec<TrackChunk> = vec![];
     let mut bytes = bytes;
 
-    for i in 0..header_chunk.number_of_tracks {
-        println!("Track {}", i);
+    for _ in 0..header_chunk.number_of_tracks {
         let (bytes_track_readed, track_chunk) = match parse_track_chunk(bytes) {
             Ok(track_chunk) => track_chunk,
             Err(error) => return Err(error),

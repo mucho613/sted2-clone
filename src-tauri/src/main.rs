@@ -41,7 +41,13 @@ fn main() {
 
             let midi_output_state = event.window().state::<MidiOutputState>();
 
-            let port = open_port(parsed).unwrap();
+            let port = match open_port(parsed) {
+                Ok(port) => port,
+                Err(error) => {
+                    println!("{}", error);
+                    return;
+                }
+            };
 
             *midi_output_state
                 .midi_output_connection

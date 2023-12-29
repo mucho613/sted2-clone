@@ -2,17 +2,18 @@ use nom::{bytes::streaming::take, error::Error, number::streaming::be_u24};
 
 use crate::file::standard_midi_file::MetaEvent;
 
-use super::{variable_length_bytes::parse_variable_length_bytes, Event, EventBody};
+use super::{
+    status_byte::parse_status_byte, variable_length_bytes::parse_variable_length_bytes, Event,
+    EventBody,
+};
 
 /// SMF のイベントをパースする
-pub fn parse_event(bytes: &[u8]) -> Result<(&[u8], Event), &str> {
+pub fn parse_event(bytes: &[u8], prev_status_byte: Option<u8>) -> Result<(&[u8], Event), &str> {
     let (bytes, delta_time) =
         parse_variable_length_bytes(&bytes).expect("Failed to read delta time.");
 
-    let (bytes, event_type_bytes) =
-        take::<u8, &[u8], Error<&[u8]>>(1u8)(bytes).expect("Failed to read event type.");
-
-    let event_type_byte = event_type_bytes[0];
+    let (bytes, event_type_byte) =
+        parse_status_byte(bytes, prev_status_byte).expect("Failed to read status byte.");
 
     // Event type
     let (bytes, event) = match event_type_byte {

@@ -15,15 +15,26 @@ pub fn parse_track_chunk(bytes: &[u8]) -> Result<(&[u8], TrackChunk), String> {
 
     let mut bytes_track_parsed = bytes;
 
+    // ランニングステータスに対応するため、直前にパースしたステータスバイトを保持する
+    let mut latest_status_byte: Option<u8> = None;
+
+    bytes_track_parsed = bytes;
+
     loop {
         if bytes_track_parsed.is_empty() {
             // End of track not found
             break;
         }
 
-        let (bytes, event) = parse_event(bytes_track_parsed).expect("Failed to parse event.");
+        let (bytes, event) =
+            parse_event(bytes_track_parsed, latest_status_byte).expect("Failed to parse event.");
 
         bytes_track_parsed = bytes;
+
+        match &event.event_body {
+            EventBody::ChannelMessage(message) => latest_status_byte = Some(message[0]),
+            _ => (),
+        };
 
         if event.event_body == EventBody::MetaEvent(MetaEvent::EndOfTrack) {
             events.push(event);
