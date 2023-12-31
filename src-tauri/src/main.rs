@@ -10,7 +10,8 @@ mod state;
 use std::sync::Mutex;
 
 use file::load::load_file;
-use player::play;
+use player::stop::stop;
+use player::{play::play, PlayerState};
 use state::{FileState, MidiOutputState};
 use tauri::Menu;
 
@@ -30,7 +31,10 @@ fn main() {
         .manage(MidiOutputState {
             midi_output_connection: Default::default(),
         })
-        .invoke_handler(tauri::generate_handler![play, load_file])
+        .manage(PlayerState {
+            playing_thread: Default::default(),
+        })
+        .invoke_handler(tauri::generate_handler![play, stop, load_file])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
