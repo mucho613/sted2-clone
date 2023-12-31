@@ -7,7 +7,7 @@ function App() {
 
   const [error, setError] = createSignal("");
 
-  const { loadFile, play, getPlayStatus } = useInvoke();
+  const { loadFile, play, stop } = useInvoke();
 
   const handleLoad = () => {
     loadFile(filePath())
@@ -17,6 +17,12 @@ function App() {
 
   const handlePlay = () => {
     play()
+      .then(() => setError(""))
+      .catch((error) => setError(error));
+  };
+
+  const handleStop = () => {
+    stop()
       .then(() => setError(""))
       .catch((error) => setError(error));
   };
@@ -40,6 +46,13 @@ function App() {
               onClick={handlePlay}
             >
               PLAY
+            </button>
+            <button
+              class="pl-px text-left h-[17px] bg-blue leading-none"
+              type="button"
+              onClick={handleStop}
+            >
+              STOP
             </button>
           </div>
           <div>

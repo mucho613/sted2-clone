@@ -10,6 +10,10 @@ export function useInvoke() {
     return invoke("play");
   }
 
+  function stop() {
+    return invoke("stop");
+  }
+
   function getPlayStatus(): Promise<PlayStatus> {
     return invoke("get_play_status");
   }
@@ -17,6 +21,7 @@ export function useInvoke() {
   return {
     loadFile,
     play,
+    stop,
     getPlayStatus,
   };
 }
