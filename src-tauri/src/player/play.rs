@@ -1,4 +1,4 @@
-use tauri::State;
+use tauri::{api::file, State};
 
 use crate::state::{FileState, MidiOutputState};
 
@@ -10,7 +10,10 @@ pub fn play(
     midi_output_state: State<'_, MidiOutputState>,
     player_state: State<'_, PlayerState>,
 ) -> Result<(), String> {
-    let smf = file_state.smf.lock().unwrap().take();
+    let smf = file_state.smf.lock().expect("Failed to lock smf").take();
+
+    let smf = smf.clone();
+
     let smf = match smf {
         Some(smf) => smf,
         None => return Err("ファイルが読み込まれていません。".to_string()),
@@ -28,6 +31,12 @@ pub fn play(
     std::thread::spawn(move || {
         playing_thread(receiver, smf, &mut midi_output).unwrap();
     });
+
+    file_state
+        .smf
+        .lock()
+        .expect("Failed to lock smf")
+        .replace(smf);
 
     Ok(())
 }

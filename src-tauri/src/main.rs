@@ -10,8 +10,7 @@ mod state;
 use std::sync::Mutex;
 
 use file::load::load_file;
-use player::stop::stop;
-use player::{play::play, PlayerState};
+use player::{play::play, stop::stop, PlayerState};
 use state::{FileState, MidiOutputState};
 use tauri::{Manager, Menu};
 
