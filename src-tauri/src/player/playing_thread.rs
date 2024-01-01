@@ -1,11 +1,10 @@
 use midir::MidiOutputConnection;
-use tauri::State;
 
 use crate::file::standard_midi_file::{EventBody, MetaEvent, StandardMidiFile};
 use crate::midi::send_message;
-use crate::state::{FileState, MidiOutputState};
 
 pub fn playing_thread(
+    receiver: std::sync::mpsc::Receiver<&str>,
     smf: StandardMidiFile,
     midi_output: &mut MidiOutputConnection,
 ) -> Result<(), String> {
@@ -20,6 +19,11 @@ pub fn playing_thread(
     let track = &smf.track_chunks[0];
 
     for event in track.data_body.iter() {
+        match receiver.try_recv() {
+            Ok("stop") => break,
+            _ => (),
+        }
+
         loop {
             let now = std::time::Instant::now();
 

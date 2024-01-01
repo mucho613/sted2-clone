@@ -22,11 +22,12 @@ pub fn play(
         None => return Err("MIDI 出力ポートが選択されていません。".to_string()),
     };
 
-    let handle = std::thread::spawn(move || {
-        playing_thread(smf, &mut midi_output).unwrap();
-    });
+    let (sender, receiver) = std::sync::mpsc::channel();
+    player_state.sender.lock().unwrap().replace(sender);
 
-    player_state.playing_thread.lock().unwrap().replace(handle);
+    std::thread::spawn(move || {
+        playing_thread(receiver, smf, &mut midi_output).unwrap();
+    });
 
     Ok(())
 }

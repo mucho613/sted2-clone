@@ -1,15 +1,17 @@
 use tauri::State;
 
-use crate::state::{FileState, MidiOutputState};
+use super::PlayerState;
 
 #[tauri::command]
-pub fn stop(player_state: State<'_, super::PlayerState>) -> Result<(), String> {
-    let mut playing_thread = player_state.playing_thread.lock().unwrap();
-    let playing_thread = match playing_thread.take() {
-        Some(playing_thread) => playing_thread,
-        None => return Err("再生中のファイルがありません。".to_string()),
+pub fn stop(player_state: State<'_, PlayerState>) -> Result<(), String> {
+    let sender = player_state.sender.lock().unwrap().take();
+    let sender = match sender {
+        Some(sender) => sender,
+        None => return Err("Player is not running.".to_string()),
     };
-    playing_thread.park
 
-    Ok(())
+    match sender.send("stop") {
+        Ok(_) => Ok(()),
+        Err(_) => Err("Failed to send stop signal.".to_string()),
+    }
 }

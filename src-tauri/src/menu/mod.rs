@@ -1,4 +1,3 @@
-use crate::file::load::load_file;
 use crate::midi::{midi_output, open_port};
 use crate::state::MidiOutputState;
 use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
