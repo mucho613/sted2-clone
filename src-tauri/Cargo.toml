@@ -1,7 +1,7 @@
 [package]
 name = "sted2-clone"
 version = "0.0.0"
-description = "Clone of the STed2 the MIDI Sequencer"
+description = "STed2 Clone"
 authors = ["Daisuke Yamamura <mucho613@gmail.com>"]
 license = "MIT"
 repository = "https://github.com/mucho613/sted2-clone/"

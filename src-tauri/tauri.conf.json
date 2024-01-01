@@ -7,7 +7,7 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "sted2-clone",
+    "productName": "STed2 Clone",
     "version": "0.0.0"
   },
   "tauri": {
@@ -40,7 +40,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "sted2-clone",
+        "title": "STed2 Clone",
         "width": 824,
         "height": 580
       }
