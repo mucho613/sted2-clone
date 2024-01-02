@@ -10,8 +10,9 @@ mod state;
 use std::sync::Mutex;
 
 use file::load::load_file;
+use menu::midi_output_menu_event;
 use player::{play::play, stop::stop, PlayerState};
-use state::{FileState, MidiOutputState};
+use state::{FileState, MidiConnectionState};
 use tauri::{Manager, Menu};
 
 fn main() {
@@ -20,16 +21,14 @@ fn main() {
 
     tauri::Builder::default()
         .menu(menu)
-        .on_menu_event(|event| {
-            menu::midi_output_menu_event(event);
-        })
+        .on_menu_event(midi_output_menu_event)
         .setup(|app| {
             app.manage(FileState {
-                file: Default::default(),
+                file: Mutex::new(None),
                 smf: Mutex::new(None),
             });
-            app.manage(MidiOutputState {
-                midi_output_connection: Default::default(),
+            app.manage(MidiConnectionState {
+                midi_output_port_index: Mutex::new(None),
             });
             app.manage(PlayerState {
                 sender: Mutex::new(None),

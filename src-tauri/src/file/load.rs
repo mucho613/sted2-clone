@@ -19,9 +19,17 @@ pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result
     // SMF として格納する
     let smf = load(&buffer).expect("Failed to parse SMF");
 
-    *file_buffer.file.lock().unwrap() = buffer;
+    file_buffer
+        .file
+        .lock()
+        .expect("Failed to lock file buffer")
+        .replace(buffer);
 
-    *file_buffer.smf.lock().unwrap() = Some(smf);
+    file_buffer
+        .smf
+        .lock()
+        .expect("Failed to lock smf")
+        .replace(smf);
 
     Ok(())
 }

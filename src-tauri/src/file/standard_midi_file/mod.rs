@@ -7,38 +7,38 @@ mod variable_length_bytes;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct StandardMidiFile {
     pub header_chunk: HeaderChunk,
     pub track_chunks: Vec<TrackChunk>,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct HeaderChunk {
     pub format: u16,
     pub number_of_tracks: u16,
     pub time_base: u16,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct TrackChunk {
     pub data_body: Vec<Event>,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Event {
     pub delta_time: u32,
     pub event_body: EventBody,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum EventBody {
     ChannelMessage(Vec<u8>),
     SystemExclusiveMessage(Vec<u8>),
     MetaEvent(MetaEvent),
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum MetaEvent {
     SequenceNumber(u16),
     TextEvent(String),

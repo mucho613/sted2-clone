@@ -1,5 +1,5 @@
-use crate::midi::{midi_output, open_port};
-use crate::state::MidiOutputState;
+use crate::midi::midi_output;
+use crate::state::MidiConnectionState;
 use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
 
 pub fn midi_output_menu() -> Submenu {
@@ -25,18 +25,11 @@ pub fn midi_output_menu_event(event: tauri::WindowMenuEvent) {
         .parse::<usize>()
         .expect("Failed to parse");
 
-    let midi_output_state = event.window().state::<MidiOutputState>();
+    let midi_connection_state = event.window().state::<MidiConnectionState>();
 
-    let port = match open_port(parsed) {
-        Ok(port) => port,
-        Err(error) => {
-            println!("{}", error);
-            return;
-        }
-    };
-
-    *midi_output_state
-        .midi_output_connection
+    midi_connection_state
+        .midi_output_port_index
         .lock()
-        .expect("Mutex error") = Some(port);
+        .expect("Failed to lock midi_output")
+        .replace(parsed);
 }

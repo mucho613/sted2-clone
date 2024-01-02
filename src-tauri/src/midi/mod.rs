@@ -3,7 +3,7 @@ use midir::{ConnectError, MidiOutput, MidiOutputConnection};
 const MIDI_INITIALIZE_ERROR_MESSAGE: &str = "MIDI 入出力機能を初期化できませんでした。";
 
 pub fn midi_output() -> midir::MidiOutput {
-    midir::MidiOutput::new("STed2-clone MIDI Output").expect(MIDI_INITIALIZE_ERROR_MESSAGE)
+    midir::MidiOutput::new("STed2 Clone MIDI Output").expect(MIDI_INITIALIZE_ERROR_MESSAGE)
 }
 
 pub fn open_port(index: usize) -> Result<MidiOutputConnection, ConnectError<MidiOutput>> {

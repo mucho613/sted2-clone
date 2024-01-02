@@ -1,13 +1,13 @@
-use midir::MidiOutputConnection;
-
 use crate::file::standard_midi_file::{EventBody, MetaEvent, StandardMidiFile};
-use crate::midi::send_message;
+use crate::midi::{open_port, send_message};
 
 pub fn playing_thread(
+    midi_output_port_index: usize,
     receiver: std::sync::mpsc::Receiver<&str>,
     smf: StandardMidiFile,
-    midi_output: &mut MidiOutputConnection,
 ) -> Result<(), String> {
+    let mut midi_output = open_port(midi_output_port_index).expect("Failed to open MIDI port");
+
     let play_start_time = std::time::Instant::now();
     let mut delta_time_counter: u32 = 0;
     let mut last_tempo_changed_time = play_start_time;
@@ -46,9 +46,8 @@ pub fn playing_thread(
 
         // Event type
         match &event.event_body {
-            // Channel message
-            EventBody::ChannelMessage(message) => send_message(midi_output, &message),
-            EventBody::SystemExclusiveMessage(message) => send_message(midi_output, message),
+            EventBody::ChannelMessage(message) => send_message(&mut midi_output, &message),
+            EventBody::SystemExclusiveMessage(message) => send_message(&mut midi_output, message),
             EventBody::MetaEvent(MetaEvent::TempoChangeEvent(tempo)) => {
                 current_tempo = *tempo;
                 last_tempo_changed_time = std::time::Instant::now();
@@ -58,6 +57,8 @@ pub fn playing_thread(
             _ => (),
         }
     }
+
+    midi_output.close();
 
     Ok(())
 }
