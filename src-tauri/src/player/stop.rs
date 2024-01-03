@@ -1,6 +1,6 @@
 use tauri::State;
 
-use super::SequencerState;
+use crate::state::sequencer_state::SequencerState;
 
 #[tauri::command]
 pub fn stop(player_state: State<'_, SequencerState>) -> Result<(), String> {

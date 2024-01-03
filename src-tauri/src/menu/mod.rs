@@ -1,5 +1,4 @@
-use crate::midi::midi_output;
-use crate::state::MidiConnectionState;
+use crate::{midi::midi_output, state::midi_connection_state::MidiConnectionState};
 use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
 
 pub fn midi_output_menu() -> Submenu {

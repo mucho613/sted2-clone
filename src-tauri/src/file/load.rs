@@ -2,7 +2,7 @@ use std::{fs::File, io::Read};
 
 use tauri::State;
 
-use crate::{file::standard_midi_file::load::load, state::FileState};
+use crate::{file::standard_midi_file::load::load, state::file_state::FileState};
 
 #[tauri::command]
 pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result<(), String> {

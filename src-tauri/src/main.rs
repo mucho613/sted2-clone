@@ -11,8 +11,12 @@ use std::sync::Mutex;
 
 use file::load::load_file;
 use menu::midi_output_menu_event;
-use player::{play::play, play_status::get_play_status, stop::stop, SequencerState};
-use state::{FileState, KeyStatus, MidiConnectionState};
+use player::{play::play, play_status::get_play_status, stop::stop};
+
+use state::{
+    file_state::FileState, key_state::KeyStatus, midi_connection_state::MidiConnectionState,
+    sequencer_state::SequencerState,
+};
 use tauri::{Manager, Menu};
 
 fn main() {
