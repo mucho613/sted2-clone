@@ -1,9 +1,9 @@
 use tauri::State;
 
-use super::PlayerState;
+use super::SequencerState;
 
 #[tauri::command]
-pub fn stop(player_state: State<'_, PlayerState>) -> Result<(), String> {
+pub fn stop(player_state: State<'_, SequencerState>) -> Result<(), String> {
     let sender = player_state.sender.lock().unwrap().take();
     let sender = match sender {
         Some(sender) => sender,

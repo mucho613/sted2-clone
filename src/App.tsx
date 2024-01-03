@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js";
-import TrackMonitor from "./feature/TrackMonitor";
+import TrackMonitor from "./feature/TrackMonitor/TrackMonitor";
 import { useInvoke } from "./useInvoke";
 
 function App() {
@@ -56,12 +56,13 @@ function App() {
             </button>
           </div>
           <div>
-            <h2>Track Monitor</h2>
+            <h2 class="mb-2">Track Monitor</h2>
+            <div class="p-4 border">
+              <TrackMonitor />
+            </div>
           </div>
         </div>
       </div>
-
-      {/* <TrackMonitor getPlayStatus={getPlayStatus} /> */}
 
       <p class="fixed bottom-4 left-4">{error()}</p>
     </div>

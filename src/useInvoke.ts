@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api";
-import { PlayStatus } from "./feature/TrackMonitor";
+import { PlayStatus } from "./feature/TrackMonitor/TrackMonitor";
 
 export function useInvoke() {
   function loadFile(filePath: string): Promise<null> {

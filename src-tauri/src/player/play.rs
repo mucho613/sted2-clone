@@ -1,14 +1,15 @@
 use tauri::State;
 
-use crate::state::{FileState, MidiConnectionState};
+use crate::state::{FileState, KeyStatus, MidiConnectionState};
 
-use super::{playing_thread::playing_thread, PlayerState};
+use super::{playing_thread::playing_thread, SequencerState};
 
 #[tauri::command]
 pub fn play(
     file_state: State<'_, FileState>,
     midi_output_state: State<'_, MidiConnectionState>,
-    player_state: State<'_, PlayerState>,
+    player_state: State<'_, SequencerState>,
+    key_status: State<'_, KeyStatus>,
 ) -> Result<(), String> {
     let smf = file_state.smf.lock().expect("Failed to lock smf").clone();
     let smf = match smf {
