@@ -1,5 +1,8 @@
-use crate::{midi::midi_output, state::midi_connection_state::MidiConnectionState};
-use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
+use crate::{
+    midi::{midi_output, open_port},
+    state::midi_connection_state::MidiConnectionState,
+};
+use tauri::{utils::config::parse, CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
 
 pub fn midi_output_menu() -> Submenu {
     let midi_output = midi_output();
@@ -27,8 +30,8 @@ pub fn midi_output_menu_event(event: tauri::WindowMenuEvent) {
     let midi_connection_state = event.window().state::<MidiConnectionState>();
 
     midi_connection_state
-        .midi_output_port_index
+        .midi_output_connection
         .lock()
         .expect("Failed to lock midi_output")
-        .replace(parsed);
+        .replace(open_port(parsed).expect("Failed to open port"));
 }

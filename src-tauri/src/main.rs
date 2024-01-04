@@ -14,7 +14,7 @@ use menu::midi_output_menu_event;
 use player::{play::play, play_status::get_play_status, stop::stop};
 
 use state::{
-    file_state::FileState, key_state::KeyStatus, midi_connection_state::MidiConnectionState,
+    file_state::FileState, key_state::KeyState, midi_connection_state::MidiConnectionState,
     sequencer_state::SequencerState,
 };
 use tauri::{Manager, Menu};
@@ -32,12 +32,12 @@ fn main() {
                 smf: Mutex::new(None),
             });
             app.manage(MidiConnectionState {
-                midi_output_port_index: Mutex::new(None),
+                midi_output_connection: Default::default(),
             });
             app.manage(SequencerState {
                 sender: Mutex::new(None),
             });
-            app.manage(KeyStatus {
+            app.manage(KeyState {
                 note_on_keys: Default::default(),
             });
 

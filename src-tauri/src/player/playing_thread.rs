@@ -1,12 +1,18 @@
+use std::sync::{Arc, Mutex};
+
 use crate::file::standard_midi_file::{EventBody, MetaEvent, StandardMidiFile};
-use crate::midi::{open_port, send_message};
+use crate::midi::send_message;
 
 pub fn playing_thread(
-    midi_output_port_index: usize,
+    midi_output_connection: Arc<Mutex<Option<midir::MidiOutputConnection>>>,
     receiver: std::sync::mpsc::Receiver<&str>,
     smf: StandardMidiFile,
 ) -> Result<(), String> {
-    let mut midi_output = open_port(midi_output_port_index).expect("Failed to open MIDI port");
+    let mut midi_output = midi_output_connection
+        .lock()
+        .expect("Failed to lock midi_output_connection")
+        .take()
+        .expect("Failed to take midi_output_connection");
 
     let play_start_time = std::time::Instant::now();
     let mut delta_time_counter: u32 = 0;
@@ -39,7 +45,7 @@ pub fn playing_thread(
                 break;
             }
 
-            std::thread::sleep(std::time::Duration::from_millis(1));
+            // std::thread::sleep(std::time::Duration::from_millis(1));
         }
 
         delta_time_counter += event.delta_time;
@@ -58,7 +64,10 @@ pub fn playing_thread(
         }
     }
 
-    midi_output.close();
+    midi_output_connection
+        .lock()
+        .expect("Failed to lock midi_output_connection")
+        .replace(midi_output);
 
     Ok(())
 }
