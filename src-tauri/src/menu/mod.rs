@@ -2,7 +2,7 @@ use crate::{
     midi::{midi_output, open_port},
     state::midi_connection_state::MidiConnectionState,
 };
-use tauri::{utils::config::parse, CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
+use tauri::{CustomMenuItem, Manager, Menu, MenuEntry, Submenu};
 
 pub fn midi_output_menu() -> Submenu {
     let midi_output = midi_output();

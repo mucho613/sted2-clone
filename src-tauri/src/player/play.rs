@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-use super::playing_thread::playing_thread;
+use super::{play_status_thread::play_status_thread, playing_thread::playing_thread};
 
 #[tauri::command]
 pub fn play(
@@ -33,12 +33,17 @@ pub fn play(
     }
 
     let (sender, receiver) = std::sync::mpsc::channel();
+    let (play_status_sender, play_status_receiver) = std::sync::mpsc::channel();
     player_state.sender.lock().unwrap().replace(sender);
+    // MIDI メッセージの送信を行うスレッド
+    std::thread::spawn(move || {
+        playing_thread(midi_output_connection, receiver, smf, play_status_sender).unwrap();
+    });
 
     let key_state = Arc::clone(&key_state.note_on_keys);
-
+    // 演奏モニタの状態管理を行うスレッド
     std::thread::spawn(move || {
-        playing_thread(midi_output_connection, receiver, smf).unwrap();
+        play_status_thread(play_status_receiver, key_state).unwrap();
     });
 
     Ok(())

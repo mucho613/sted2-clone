@@ -21,8 +21,6 @@ function TrackMonitor() {
     let frame = requestAnimationFrame(loop);
 
     async function loop() {
-      frame = requestAnimationFrame(loop);
-
       if (!context) return;
 
       const playStatus = await getPlayStatus();
@@ -77,6 +75,8 @@ function TrackMonitor() {
           context.fillRect(x, y, width, height);
         }
       }
+
+      frame = requestAnimationFrame(loop);
     }
 
     onCleanup(() => cancelAnimationFrame(frame));

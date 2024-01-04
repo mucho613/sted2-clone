@@ -3,10 +3,13 @@ use std::sync::{Arc, Mutex};
 use crate::file::standard_midi_file::{EventBody, MetaEvent, StandardMidiFile};
 use crate::midi::send_message;
 
+use super::play_status_thread::PlayStatusMessage;
+
 pub fn playing_thread(
     midi_output_connection: Arc<Mutex<Option<midir::MidiOutputConnection>>>,
     receiver: std::sync::mpsc::Receiver<&str>,
     smf: StandardMidiFile,
+    play_status_sender: std::sync::mpsc::Sender<PlayStatusMessage>,
 ) -> Result<(), String> {
     let mut midi_output = midi_output_connection
         .lock()
@@ -45,14 +48,34 @@ pub fn playing_thread(
                 break;
             }
 
-            // std::thread::sleep(std::time::Duration::from_millis(1));
+            std::thread::sleep(std::time::Duration::from_millis(5));
         }
 
         delta_time_counter += event.delta_time;
 
         // Event type
         match &event.event_body {
-            EventBody::ChannelMessage(message) => send_message(&mut midi_output, &message),
+            EventBody::ChannelMessage(message) => {
+                match message[0] & 0xF0 {
+                    0x80 => {
+                        let channel = message[0] & 0x0F;
+                        let note = message[1];
+                        play_status_sender
+                            .send(PlayStatusMessage::NoteOff((channel, note)))
+                            .unwrap();
+                    }
+                    0x90 => {
+                        let channel = message[0] & 0x0F;
+                        let note = message[1];
+                        play_status_sender
+                            .send(PlayStatusMessage::NoteOn((channel, note)))
+                            .unwrap();
+                    }
+                    _ => (),
+                }
+
+                send_message(&mut midi_output, &message)
+            }
             EventBody::SystemExclusiveMessage(message) => send_message(&mut midi_output, message),
             EventBody::MetaEvent(MetaEvent::TempoChangeEvent(tempo)) => {
                 current_tempo = *tempo;
