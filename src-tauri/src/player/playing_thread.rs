@@ -73,12 +73,23 @@ pub fn playing_thread(
                         note_on_keys.retain(|key| !(key.channel == channel && key.note == note));
                     }
                     0x90 => {
-                        let channel = message[0] & 0x0F;
-                        let note = message[1];
-                        play_status_sender
-                            .send(PlayStatusMessage::NoteOn((channel, note)))
-                            .unwrap();
-                        note_on_keys.push(NoteOnKey { channel, note });
+                        // Running status で Note off されたときに対応
+                        if message[2] == 0x00 {
+                            let channel = message[0] & 0x0F;
+                            let note = message[1];
+                            play_status_sender
+                                .send(PlayStatusMessage::NoteOff((channel, note)))
+                                .unwrap();
+                            note_on_keys
+                                .retain(|key| !(key.channel == channel && key.note == note));
+                        } else {
+                            let channel = message[0] & 0x0F;
+                            let note = message[1];
+                            play_status_sender
+                                .send(PlayStatusMessage::NoteOn((channel, note)))
+                                .unwrap();
+                            note_on_keys.push(NoteOnKey { channel, note });
+                        }
                     }
                     _ => (),
                 }
