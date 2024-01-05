@@ -73,7 +73,7 @@ pub fn playing_thread(
                         note_on_keys.retain(|key| !(key.channel == channel && key.note == note));
                     }
                     0x90 => {
-                        // Running status で Note off されたときに対応
+                        // Note on, Velocity = 0 を Note off として扱う
                         if message[2] == 0x00 {
                             let channel = message[0] & 0x0F;
                             let note = message[1];
