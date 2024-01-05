@@ -56,10 +56,7 @@ function App() {
             </button>
           </div>
           <div>
-            <h2 class="mb-2">Track Monitor</h2>
-            <div class="p-4 border">
-              <TrackMonitor />
-            </div>
+            <TrackMonitor />
           </div>
         </div>
       </div>

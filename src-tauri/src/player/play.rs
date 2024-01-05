@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tauri::State;
 
 use crate::{
-    midi::midi_output,
+    midi::{midi_output, send_message},
     state::{
         file_state::FileState,
         key_state::KeyState,

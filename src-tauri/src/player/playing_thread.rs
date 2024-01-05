@@ -5,6 +5,11 @@ use crate::midi::send_message;
 
 use super::play_status_thread::PlayStatusMessage;
 
+struct NoteOnKey {
+    channel: u8,
+    note: u8,
+}
+
 pub fn playing_thread(
     midi_output_connection: Arc<Mutex<Option<midir::MidiOutputConnection>>>,
     receiver: std::sync::mpsc::Receiver<&str>,
@@ -22,6 +27,8 @@ pub fn playing_thread(
     let mut last_tempo_changed_time = play_start_time;
     let mut last_tempo_changed_delta_time = delta_time_counter;
     let mut current_tempo: u32 = 500000; // Default BPM = 120
+
+    let mut note_on_keys: Vec<NoteOnKey> = Vec::new();
 
     let time_base = u32::from(smf.header_chunk.time_base);
 
@@ -63,6 +70,7 @@ pub fn playing_thread(
                         play_status_sender
                             .send(PlayStatusMessage::NoteOff((channel, note)))
                             .unwrap();
+                        note_on_keys.retain(|key| !(key.channel == channel && key.note == note));
                     }
                     0x90 => {
                         let channel = message[0] & 0x0F;
@@ -70,6 +78,7 @@ pub fn playing_thread(
                         play_status_sender
                             .send(PlayStatusMessage::NoteOn((channel, note)))
                             .unwrap();
+                        note_on_keys.push(NoteOnKey { channel, note });
                     }
                     _ => (),
                 }
@@ -85,6 +94,17 @@ pub fn playing_thread(
             EventBody::MetaEvent(MetaEvent::EndOfTrack) => (),
             _ => (),
         }
+    }
+
+    // Note on 状態のキーをすべて Note off にする
+    for key in note_on_keys {
+        play_status_sender
+            .send(PlayStatusMessage::NoteOff((key.channel, key.note)))
+            .unwrap();
+        send_message(
+            &mut midi_output,
+            &[0x80 | key.channel, key.note, 0x00].to_vec(),
+        );
     }
 
     midi_output_connection
