@@ -136,6 +136,15 @@ pub fn playing_thread(
                             _ => (),
                         }
                     }
+                    0xE0 => {
+                        let channel = message[0] & 0x0F;
+                        play_status_sender
+                            .send(PlayStatusMessage::PitchBendChange((
+                                channel,
+                                u16::from(message[1]) + (u16::from(message[2]) << 7),
+                            )))
+                            .unwrap();
+                    }
                     _ => (),
                 }
 

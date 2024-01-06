@@ -20,61 +20,43 @@ export const useParamMonitor = (): ReturnType => {
     // Control change 周りの描画
     context.fillStyle = "#2a7a2a";
     for (let i = 0; i < 16; i++) {
-      const track = midiOutputStatus[i];
-      const y = (TRACK_HEIGHT + TRACK_GAP) * i + TRACK_HEIGHT;
-      const height = -8;
-      {
-        const { x, width } = {
-          x: 0,
-          width: (track.volume * CONTROL_CHANGE_GRAPH_WIDTH) / 127,
-        };
-        context.fillRect(x, y, width, height);
-      }
-      {
-        const { x, width } = {
-          x: CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP,
-          width: (track.expression * CONTROL_CHANGE_GRAPH_WIDTH) / 127,
-        };
-        context.fillRect(x, y, width, height);
-      }
-      context.fillStyle = "red";
-      {
-        const baseX = (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * 2;
-        const { x, width, height } = {
-          x: baseX + CONTROL_CHANGE_GRAPH_WIDTH / 2,
-          width: ((track.pan - 64) * CONTROL_CHANGE_GRAPH_WIDTH) / 127,
-          height: -4,
-        };
-        context.fillRect(x, y, width, height);
-      }
-      context.fillStyle = "#2a7a2a";
-      {
-        const { x, width } = {
-          x: (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * 3,
-          width: (track.reverb * CONTROL_CHANGE_GRAPH_WIDTH) / 127,
-        };
-        context.fillRect(x, y, width, height);
-      }
-      {
-        const { x, width } = {
-          x: (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * 4,
-          width: (track.chorus * CONTROL_CHANGE_GRAPH_WIDTH) / 127,
-        };
-        context.fillRect(x, y, width, height);
-      }
-      {
-        const { x, width } = {
-          x: (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * 5,
-          width: (track.cut_off_frequency * CONTROL_CHANGE_GRAPH_WIDTH) / 127,
-        };
-        context.fillRect(x, y, width, height);
-      }
-      {
-        const { x, width } = {
-          x: (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * 6,
-          width: (track.resonance * CONTROL_CHANGE_GRAPH_WIDTH) / 127,
-        };
-        context.fillRect(x, y, width, height);
+      const { volume, expression, pan, reverb, chorus, pitch_bend } = midiOutputStatus[i];
+      const params = Object.entries({ volume, expression, pan, reverb, chorus, pitch_bend });
+
+      for (let j = 0; j < params.length; j++) {
+        const [key, value] = params[j];
+        const x = (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j;
+        const y = (TRACK_HEIGHT + TRACK_GAP) * i + TRACK_HEIGHT;
+        context.fillStyle = "#444";
+        context.fillRect(x, y, CONTROL_CHANGE_GRAPH_WIDTH, -2);
+
+        if (key === "pan") {
+          const xBase =
+            (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j +
+            CONTROL_CHANGE_GRAPH_WIDTH / 2;
+          const offset = ((value - 64) * CONTROL_CHANGE_GRAPH_WIDTH) / 127;
+          const width = 2;
+          const height = -8;
+
+          context.fillStyle = "red";
+          context.fillRect(xBase + offset - 1, y, width, height);
+        }
+        if (key === "pitch_bend") {
+          const xBase =
+            (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j +
+            CONTROL_CHANGE_GRAPH_WIDTH / 2;
+          const offset = ((value - 8192) * CONTROL_CHANGE_GRAPH_WIDTH) / 16384;
+          const width = 2;
+          const height = -8;
+
+          context.fillStyle = "red";
+          context.fillRect(xBase + offset - 1, y, width, height);
+        } else {
+          const width = (value * CONTROL_CHANGE_GRAPH_WIDTH) / 127;
+
+          context.fillStyle = "#2a7a2a";
+          context.fillRect(x, y, width, -2);
+        }
       }
     }
   };

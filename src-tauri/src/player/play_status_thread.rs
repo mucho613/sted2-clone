@@ -12,6 +12,7 @@ pub enum PlayStatusMessage {
     ChorusChange((u8, u8)),
     CutOffFrequencyChange((u8, u8)),
     ResonanceChange((u8, u8)),
+    PitchBendChange((u8, u16)),
 }
 
 pub fn play_status_thread(
@@ -50,11 +51,15 @@ pub fn play_status_thread(
             }
             Ok(PlayStatusMessage::CutOffFrequencyChange((channel, cut_off_frequency))) => {
                 let mut tracks = tracks.lock().expect("Failed to lock key_state");
-                tracks[channel as usize].cut_off_frequency = cut_off_frequency;
+                tracks[channel as usize].cutoff_frequency = cut_off_frequency;
             }
             Ok(PlayStatusMessage::ResonanceChange((channel, resonance))) => {
                 let mut tracks = tracks.lock().expect("Failed to lock key_state");
                 tracks[channel as usize].resonance = resonance;
+            }
+            Ok(PlayStatusMessage::PitchBendChange((channel, pitch_bend))) => {
+                let mut tracks = tracks.lock().expect("Failed to lock key_state");
+                tracks[channel as usize].pitch_bend = pitch_bend;
             }
             Err(_) => break,
         }
