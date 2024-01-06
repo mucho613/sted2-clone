@@ -27,35 +27,34 @@ export const useParamMonitor = (): ReturnType => {
         const [key, value] = params[j];
         const x = (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j;
         const y = (TRACK_HEIGHT + TRACK_GAP) * i + TRACK_HEIGHT;
-        context.fillStyle = "#444";
-        context.fillRect(x, y, CONTROL_CHANGE_GRAPH_WIDTH, -2);
+        context.fillStyle = "#333";
+        context.fillRect(x, y, CONTROL_CHANGE_GRAPH_WIDTH, -4);
 
         if (key === "pan") {
           const xBase =
             (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j +
             CONTROL_CHANGE_GRAPH_WIDTH / 2;
           const offset = ((value - 64) * CONTROL_CHANGE_GRAPH_WIDTH) / 127;
-          const width = 2;
-          const height = -8;
+          const width = 4;
+          const height = -6;
 
-          context.fillStyle = "red";
-          context.fillRect(xBase + offset - 1, y, width, height);
-        }
-        if (key === "pitch_bend") {
+          context.fillStyle = "#4C6ACE";
+          context.fillRect(xBase + offset - 2, y + 4, width, height);
+        } else if (key === "pitch_bend") {
           const xBase =
             (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j +
             CONTROL_CHANGE_GRAPH_WIDTH / 2;
           const offset = ((value - 8192) * CONTROL_CHANGE_GRAPH_WIDTH) / 16384;
-          const width = 2;
-          const height = -8;
+          const width = 4;
+          const height = -6;
 
-          context.fillStyle = "red";
-          context.fillRect(xBase + offset - 1, y, width, height);
+          context.fillStyle = "#4C6ACE";
+          context.fillRect(xBase + offset - 2, y + 4, width, height);
         } else {
           const width = (value * CONTROL_CHANGE_GRAPH_WIDTH) / 127;
 
-          context.fillStyle = "#2a7a2a";
-          context.fillRect(x, y, width, -2);
+          context.fillStyle = "#4C6ACE";
+          context.fillRect(x, y, width, -4);
         }
       }
     }
