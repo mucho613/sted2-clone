@@ -7,15 +7,15 @@ mod midi;
 mod player;
 mod state;
 
-use std::sync::Mutex;
+use std::{sync::Mutex, vec};
 
 use file::load::load_file;
 use menu::midi_output_menu_event;
 use player::{play::play, play_status::get_play_status, stop::stop};
 
 use state::{
-    file_state::FileState, key_state::KeyState, midi_connection_state::MidiConnectionState,
-    sequencer_state::SequencerState,
+    file_state::FileState, midi_connection_state::MidiConnectionState,
+    midi_output_state::MidiOutputState, sequencer_state::SequencerState,
 };
 use tauri::{Manager, Menu};
 
@@ -37,8 +37,8 @@ fn main() {
             app.manage(SequencerState {
                 sender: Mutex::new(None),
             });
-            app.manage(KeyState {
-                note_on_keys: Default::default(),
+            app.manage(MidiOutputState {
+                tracks: Default::default(),
             });
 
             #[cfg(debug_assertions)]

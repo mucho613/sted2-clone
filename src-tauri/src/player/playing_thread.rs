@@ -91,6 +91,41 @@ pub fn playing_thread(
                             note_on_keys.push(NoteOnKey { channel, note });
                         }
                     }
+                    0xB0 => {
+                        let channel = message[0] & 0x0F;
+                        match message[1] {
+                            0x07 => {
+                                play_status_sender
+                                    .send(PlayStatusMessage::VolumeChange((channel, message[2])))
+                                    .unwrap();
+                            }
+                            0x0B => {
+                                play_status_sender
+                                    .send(PlayStatusMessage::ExpressionChange((
+                                        channel, message[2],
+                                    )))
+                                    .unwrap();
+                            }
+                            0x0A => {
+                                play_status_sender
+                                    .send(PlayStatusMessage::PanChange((channel, message[2])))
+                                    .unwrap();
+                            }
+                            0x4A => {
+                                play_status_sender
+                                    .send(PlayStatusMessage::CutOffFrequencyChange((
+                                        channel, message[2],
+                                    )))
+                                    .unwrap();
+                            }
+                            0x4B => {
+                                play_status_sender
+                                    .send(PlayStatusMessage::ResonanceChange((channel, message[2])))
+                                    .unwrap();
+                            }
+                            _ => (),
+                        }
+                    }
                     _ => (),
                 }
 
