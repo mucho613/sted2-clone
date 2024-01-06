@@ -1,13 +1,15 @@
 import { createSignal } from "solid-js";
-import TrackMonitor from "./feature/TrackMonitor/TrackMonitor";
-import { useInvoke } from "./useInvoke";
+import { useInvoke } from "../useInvoke";
+import { useNavigate } from "@solidjs/router";
 
-function App() {
+function MainScreen() {
   const [filePath, setFilePath] = createSignal("");
 
   const [error, setError] = createSignal("");
 
   const { loadFile, play, stop } = useInvoke();
+
+  const navigate = useNavigate();
 
   const handleLoad = () => {
     loadFile(filePath())
@@ -19,6 +21,7 @@ function App() {
     play()
       .then(() => setError(""))
       .catch((error) => setError(error));
+    navigate("/play-panel");
   };
 
   const handleStop = () => {
@@ -47,16 +50,6 @@ function App() {
             >
               PLAY
             </button>
-            <button
-              class="pl-px text-left h-[17px] bg-blue leading-none"
-              type="button"
-              onClick={handleStop}
-            >
-              STOP
-            </button>
-          </div>
-          <div>
-            <TrackMonitor />
           </div>
         </div>
       </div>
@@ -66,4 +59,4 @@ function App() {
   );
 }
 
-export default App;
+export default MainScreen;

@@ -7,7 +7,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        "font-12": ['"KHドット小伝馬町12"'],
+        "kodenmachou-12": ['KHドット小伝馬町12'],
       },
     },
   },

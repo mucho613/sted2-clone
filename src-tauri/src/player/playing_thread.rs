@@ -111,6 +111,16 @@ pub fn playing_thread(
                                     .send(PlayStatusMessage::PanChange((channel, message[2])))
                                     .unwrap();
                             }
+                            0x5B => {
+                                play_status_sender
+                                    .send(PlayStatusMessage::ReverbChange((channel, message[2])))
+                                    .unwrap();
+                            }
+                            0x5D => {
+                                play_status_sender
+                                    .send(PlayStatusMessage::ChorusChange((channel, message[2])))
+                                    .unwrap();
+                            }
                             0x4A => {
                                 play_status_sender
                                     .send(PlayStatusMessage::CutOffFrequencyChange((

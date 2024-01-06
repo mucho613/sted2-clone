@@ -8,6 +8,8 @@ pub enum PlayStatusMessage {
     VolumeChange((u8, u8)),
     ExpressionChange((u8, u8)),
     PanChange((u8, u8)),
+    ReverbChange((u8, u8)),
+    ChorusChange((u8, u8)),
     CutOffFrequencyChange((u8, u8)),
     ResonanceChange((u8, u8)),
 }
@@ -37,6 +39,14 @@ pub fn play_status_thread(
             Ok(PlayStatusMessage::PanChange((channel, pan))) => {
                 let mut tracks = tracks.lock().expect("Failed to lock key_state");
                 tracks[channel as usize].pan = pan;
+            }
+            Ok(PlayStatusMessage::ReverbChange((channel, reverb))) => {
+                let mut tracks = tracks.lock().expect("Failed to lock key_state");
+                tracks[channel as usize].reverb = reverb;
+            }
+            Ok(PlayStatusMessage::ChorusChange((channel, chorus))) => {
+                let mut tracks = tracks.lock().expect("Failed to lock key_state");
+                tracks[channel as usize].chorus = chorus;
             }
             Ok(PlayStatusMessage::CutOffFrequencyChange((channel, cut_off_frequency))) => {
                 let mut tracks = tracks.lock().expect("Failed to lock key_state");

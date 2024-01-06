@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api";
-import { PlayStatus } from "./feature/TrackMonitor/TrackMonitor";
+import { MidiOutputStatus } from "./feature/TrackMonitor/TrackMonitor";
 
 export function useInvoke() {
   function loadFile(filePath: string): Promise<null> {
@@ -14,7 +14,7 @@ export function useInvoke() {
     return invoke("stop");
   }
 
-  function getPlayStatus(): Promise<PlayStatus> {
+  function getPlayStatus(): Promise<MidiOutputStatus> {
     return invoke("get_play_status");
   }
 
