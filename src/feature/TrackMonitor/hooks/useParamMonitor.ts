@@ -22,7 +22,7 @@ export const useParamMonitor = (): ReturnType => {
     for (let i = 0; i < 16; i++) {
       const track = midiOutputStatus[i];
       const y = (TRACK_HEIGHT + TRACK_GAP) * i + TRACK_HEIGHT;
-      const height = -4;
+      const height = -8;
       {
         const { x, width } = {
           x: 0,

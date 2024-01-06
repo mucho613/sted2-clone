@@ -13,9 +13,9 @@ if (rootElement) {
     () => (
       <Router>
         <Route path="/" component={MainScreen} />
-        {/* <Route path="/play-panel" component={PlayPanel} /> */}
+        <Route path="/play-panel" component={PlayPanel} />
       </Router>
     ),
-    rootElement,
+    rootElement
   );
 }

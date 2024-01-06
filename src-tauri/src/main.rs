@@ -41,9 +41,6 @@ fn main() {
                 tracks: Default::default(),
             });
 
-            #[cfg(debug_assertions)]
-            app.get_window("main").unwrap().open_devtools();
-
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
