@@ -10,7 +10,7 @@
     line-height: 1;
   }
 
-  input {
+  input, select {
     color: #070016;
   }
 

@@ -10,23 +10,25 @@ mod state;
 use std::{sync::Mutex, vec};
 
 use file::load::load_file;
-use menu::midi_output_menu_event;
+use menu::menu_event_handler;
 use player::{play::play, play_status::get_play_status, stop::stop};
 
+use midi::{get_midi_output_ports, open_midi_output_port};
 use state::{
     file_state::FileState, midi_connection_state::MidiConnectionState,
     midi_output_state::MidiOutputState, sequencer_state::SequencerState,
 };
-use tauri::{Manager, Menu};
+use tauri::Manager;
 
 fn main() {
-    let midi_output_menu = menu::midi_output_menu();
-    let menu = Menu::new().add_submenu(midi_output_menu);
-
     tauri::Builder::default()
-        .menu(menu)
-        .on_menu_event(midi_output_menu_event)
         .setup(|app| {
+            let menu = menu::menu();
+
+            tauri::WindowBuilder::new(app, "main".to_string(), tauri::WindowUrl::App("/".into()))
+                .menu(menu)
+                .build()?;
+
             app.manage(FileState {
                 file: Mutex::new(None),
                 smf: Mutex::new(None),
@@ -43,11 +45,14 @@ fn main() {
 
             Ok(())
         })
+        .on_menu_event(menu_event_handler)
         .invoke_handler(tauri::generate_handler![
             play,
             stop,
             load_file,
             get_play_status,
+            get_midi_output_ports,
+            open_midi_output_port,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
