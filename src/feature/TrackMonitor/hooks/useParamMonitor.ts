@@ -28,15 +28,15 @@ export const useParamMonitor = (): ReturnType => {
         const x = (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j;
         const y = (TRACK_HEIGHT + TRACK_GAP) * i + TRACK_HEIGHT;
         context.fillStyle = "#333";
-        context.fillRect(x, y, CONTROL_CHANGE_GRAPH_WIDTH, -4);
+        context.fillRect(x, y, CONTROL_CHANGE_GRAPH_WIDTH, -TRACK_HEIGHT);
 
         if (key === "pan") {
           const xBase =
             (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j +
             CONTROL_CHANGE_GRAPH_WIDTH / 2;
           const offset = ((value - 64) * CONTROL_CHANGE_GRAPH_WIDTH) / 127;
-          const width = 4;
-          const height = -6;
+          const width = 3;
+          const height = -5;
 
           context.fillStyle = "#4C6ACE";
           context.fillRect(xBase + offset - 2, y + 4, width, height);
@@ -45,8 +45,8 @@ export const useParamMonitor = (): ReturnType => {
             (CONTROL_CHANGE_GRAPH_WIDTH + CONTROL_CHANGE_GRAPH_GAP) * j +
             CONTROL_CHANGE_GRAPH_WIDTH / 2;
           const offset = ((value - 8192) * CONTROL_CHANGE_GRAPH_WIDTH) / 16384;
-          const width = 4;
-          const height = -6;
+          const width = 3;
+          const height = -5;
 
           context.fillStyle = "#4C6ACE";
           context.fillRect(xBase + offset - 2, y + 4, width, height);
@@ -54,7 +54,7 @@ export const useParamMonitor = (): ReturnType => {
           const width = (value * CONTROL_CHANGE_GRAPH_WIDTH) / 127;
 
           context.fillStyle = "#4C6ACE";
-          context.fillRect(x, y, width, -4);
+          context.fillRect(x, y, width, -TRACK_HEIGHT);
         }
       }
     }
