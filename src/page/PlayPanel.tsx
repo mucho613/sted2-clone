@@ -6,15 +6,9 @@ import { useNavigate } from "@solidjs/router";
 function PlayPanel() {
   const [error, setError] = createSignal("");
 
-  const { play, stop } = useInvoke();
+  const { stop } = useInvoke();
 
   const navigate = useNavigate();
-
-  const handlePlay = () => {
-    play()
-      .then(() => setError(""))
-      .catch((error) => setError(error));
-  };
 
   const handleStop = () => {
     stop()

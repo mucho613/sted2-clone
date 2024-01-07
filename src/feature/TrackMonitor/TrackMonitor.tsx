@@ -1,14 +1,4 @@
 import { createSignal, onCleanup, onMount } from "solid-js";
-import {
-  BLACK_KEY_WIDTH,
-  TRACK_GAP,
-  WHITE_KEY_HEIGHT,
-  WHITE_KEY_WIDTH,
-} from "./constant";
-import {
-  calculateKeyPositionOnlyBlackKeys,
-  calculateKeyPositionOnlyWhiteKeys,
-} from "./logic";
 import { useInvoke } from "../../useInvoke";
 import { panText } from "./logic/pan";
 import { useParamMonitor } from "./hooks/useParamMonitor";
@@ -52,30 +42,16 @@ function TrackMonitor() {
     render: renderKeyboards,
   } = useKeyboardMonitor();
 
-  const [midiOutputStatus, setMidiOutputStatus] =
-    createSignal<MidiOutputStatus | null>(null);
+  const [midiOutputStatus, setMidiOutputStatus] = createSignal<MidiOutputStatus | null>(null);
 
   onMount(() => {
-    if (
-      !paramMonitor ||
-      !whiteKeys ||
-      !activeWhiteKeys ||
-      !blackKeys ||
-      !activeBlackKeys
-    )
-      return;
+    if (!paramMonitor || !whiteKeys || !activeWhiteKeys || !blackKeys || !activeBlackKeys) return;
 
-    const paramMonitorContext = (paramMonitor as HTMLCanvasElement).getContext(
-      "2d"
-    );
+    const paramMonitorContext = (paramMonitor as HTMLCanvasElement).getContext("2d");
     const whiteKeysContext = (whiteKeys as HTMLCanvasElement).getContext("2d");
-    const activeWhiteKeysContext = (
-      activeWhiteKeys as HTMLCanvasElement
-    ).getContext("2d");
+    const activeWhiteKeysContext = (activeWhiteKeys as HTMLCanvasElement).getContext("2d");
     const blackKeysContext = (blackKeys as HTMLCanvasElement).getContext("2d");
-    const activeBlackKeysContext = (
-      activeBlackKeys as HTMLCanvasElement
-    ).getContext("2d");
+    const activeBlackKeysContext = (activeBlackKeys as HTMLCanvasElement).getContext("2d");
 
     if (!whiteKeysContext || !blackKeysContext) return;
 
@@ -89,19 +65,10 @@ function TrackMonitor() {
       const midiOutputStatus = await getPlayStatus();
       setMidiOutputStatus(midiOutputStatus);
 
-      if (
-        !paramMonitorContext ||
-        !activeWhiteKeysContext ||
-        !activeBlackKeysContext
-      )
-        return;
+      if (!paramMonitorContext || !activeWhiteKeysContext || !activeBlackKeysContext) return;
 
       renderParamMonitor(paramMonitorContext, midiOutputStatus);
-      renderKeyboards(
-        activeWhiteKeysContext,
-        activeBlackKeysContext,
-        midiOutputStatus
-      );
+      renderKeyboards(activeWhiteKeysContext, activeBlackKeysContext, midiOutputStatus);
 
       frame = requestAnimationFrame(loop);
     }
@@ -151,13 +118,9 @@ function TrackMonitor() {
         <table class="absolute">
           <thead>
             <tr>
-              {["Ch.", "Vol.", "Exp.", "Pan", "Rev.", "Cho.", "Pitch"].map(
-                (label) => (
-                  <th class="w-8 font-normal font-kodenmachou-12 text-xs">
-                    {label}
-                  </th>
-                )
-              )}
+              {["Ch.", "Vol.", "Exp.", "Pan", "Rev.", "Cho.", "Pitch"].map((label) => (
+                <th class="w-8 font-normal font-kodenmachou-12 text-xs">{label}</th>
+              ))}
             </tr>
           </thead>
           <tbody>

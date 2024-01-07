@@ -7,7 +7,7 @@ function MainScreen() {
 
   const [error, setError] = createSignal("");
 
-  const { loadFile, play, stop } = useInvoke();
+  const { loadFile, play } = useInvoke();
 
   const navigate = useNavigate();
 
@@ -19,14 +19,10 @@ function MainScreen() {
 
   const handlePlay = () => {
     play()
-      .then(() => setError(""))
-      .catch((error) => setError(error));
-    navigate("/play-panel");
-  };
-
-  const handleStop = () => {
-    stop()
-      .then(() => setError(""))
+      .then(() => {
+        setError("");
+        navigate("/play-panel");
+      })
       .catch((error) => setError(error));
   };
 
