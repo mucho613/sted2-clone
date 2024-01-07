@@ -27,7 +27,7 @@ function MainScreen() {
   };
 
   return (
-    <div class="bg-sted-black text-sted-white container m-4">
+    <div class="container m-4">
       <div>
         <input class="mb-1 w-full" type="text" onInput={(e) => setFilePath(e.target.value)} />
         <div class="flex gap-1">
