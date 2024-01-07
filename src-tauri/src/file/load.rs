@@ -19,6 +19,10 @@ pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result
     // SMF として格納する
     let smf = load(&buffer).expect("Failed to parse SMF");
 
+    if smf.header_chunk.format != 0 {
+        return Err("format 0 以外の SMF は再生できません。".to_string());
+    }
+
     file_buffer
         .file
         .lock()
