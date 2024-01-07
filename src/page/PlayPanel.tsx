@@ -18,10 +18,10 @@ function PlayPanel() {
   };
 
   return (
-    <div class="container m-4">
+    <div class="bg-sted-black text-sted-white container m-4">
       <div class="flex gap-1 mb-4">
         <button
-          class="pl-px w-[66px] text-left h-[17px] bg-blue leading-none"
+          class="pl-px w-[66px] text-left h-[17px] bg-sted-blue leading-none"
           type="button"
           onClick={handleStop}
         >

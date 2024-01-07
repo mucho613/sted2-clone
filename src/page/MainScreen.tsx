@@ -27,20 +27,20 @@ function MainScreen() {
   };
 
   return (
-    <div class="container m-4">
+    <div class="bg-sted-black text-sted-white container m-4">
       <div>
         <input class="mb-1 w-full" type="text" onInput={(e) => setFilePath(e.target.value)} />
         <div class="flex gap-1">
           <div class="flex flex-col w-[66px] gap-1">
             <button
-              class="pl-px text-left h-[17px] bg-blue leading-none"
+              class="pl-px text-left h-[17px] bg-sted-blue leading-none"
               type="button"
               onClick={handleLoad}
             >
               LOAD
             </button>
             <button
-              class="pl-px text-left h-[17px] bg-blue leading-none"
+              class="pl-px text-left h-[17px] bg-sted-blue leading-none"
               type="button"
               onClick={handlePlay}
             >
