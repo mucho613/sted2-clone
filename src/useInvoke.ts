@@ -23,8 +23,8 @@ export function useInvoke() {
     return invoke("get_midi_output_ports");
   }
 
-  function openMidiOutputPort(id: string): Promise<null> {
-    return invoke("open_midi_output_port", { id });
+  function openMidiOutputPort(name: string): Promise<null> {
+    return invoke("open_midi_output_port", { name });
   }
 
   return {

@@ -1,4 +1,4 @@
-use midir::{MidiOutput, MidiOutputPorts};
+use midir::MidiOutput;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -34,13 +34,19 @@ pub fn get_midi_output_ports() -> Result<Vec<MidiPort>, String> {
 
 #[tauri::command]
 pub fn open_midi_output_port(
-    id: String,
+    name: String,
     midi_connection_state: State<'_, MidiConnectionState>,
 ) -> Result<(), String> {
     let midi_output = midi_output();
     let ports = midi_output.ports();
-    let selected_port = ports.get(id.parse::<usize>().unwrap()).unwrap();
-    let port = midi_output.connect(selected_port, "Primary port").unwrap();
+    let selected_port = ports
+        .iter()
+        .position(|port| midi_output.port_name(port).unwrap() == name)
+        .unwrap();
+
+    let port = midi_output
+        .connect(&ports[selected_port], "Primary port")
+        .unwrap();
 
     midi_connection_state
         .midi_output_connection

@@ -31,7 +31,7 @@ function Settings() {
         {midiOutputPorts().length > 0 && (
           <select class="mt-2" onChange={handleChange}>
             {midiOutputPorts().map((port) => {
-              return <option value={port.id}>{port.name}</option>;
+              return <option value={port.name}>{port.name}</option>;
             })}
           </select>
         )}
