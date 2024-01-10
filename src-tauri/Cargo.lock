@@ -2554,6 +2554,7 @@ dependencies = [
 name = "sted2-clone"
 version = "0.0.0"
 dependencies = [
+ "encoding_rs",
  "midir",
  "nom",
  "serde",
