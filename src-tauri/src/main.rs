@@ -8,14 +8,16 @@ mod midi;
 mod player;
 mod state;
 
+use crate::file::load::load_file;
+use file::recomposer_file::load::load;
+use menu::menu_event_handler;
+use player::{play::play, play_status::get_play_status, stop::stop};
 use std::{
+    fs::File,
+    io::Read,
     sync::{Arc, Mutex},
     vec,
 };
-
-use file::load::load_file;
-use menu::menu_event_handler;
-use player::{play::play, play_status::get_play_status, stop::stop};
 
 use midi::{get_midi_output_ports, open_midi_output_port};
 use state::{
@@ -25,6 +27,18 @@ use state::{
 use tauri::Manager;
 
 fn main() {
+    let file = File::open(r"C:\Users\mucho\OneDrive\Music\MIDI\INTERNET\ANOMARIA\gs201\G_S201.RCP");
+
+    let mut file = file.unwrap();
+
+    let mut buffer: Vec<u8> = vec![];
+    file.read_to_end(&mut buffer).unwrap();
+
+    // RCP として格納する
+    let rcp_file = load(&buffer).expect("Failed to parse RCP file");
+
+    println!("{:?}", rcp_file);
+
     tauri::Builder::default()
         .setup(|app| {
             let config = config::load_config();
