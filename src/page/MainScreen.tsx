@@ -3,7 +3,9 @@ import { useInvoke } from "../useInvoke";
 import { useNavigate } from "@solidjs/router";
 
 function MainScreen() {
-  const [filePath, setFilePath] = createSignal("");
+  const [filePath, setFilePath] = createSignal(
+    "C:\\Users\\mucho\\OneDrive\\Music\\MIDI\\INTERNET\\ANOMARIA\\gs201\\G_S201.RCP",
+  );
 
   const [error, setError] = createSignal("");
 
@@ -29,7 +31,12 @@ function MainScreen() {
   return (
     <div class="container m-4">
       <div>
-        <input class="mb-1 w-full" type="text" onInput={(e) => setFilePath(e.target.value)} />
+        <input
+          class="mb-1 w-full"
+          value={filePath()}
+          type="text"
+          onInput={(e) => setFilePath(e.target.value)}
+        />
         <div class="flex gap-1">
           <div class="flex flex-col w-[66px] gap-1">
             <button

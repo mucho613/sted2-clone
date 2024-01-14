@@ -1,8 +1,9 @@
 use std::{fs::File, io::Read};
 
+use recomposer_file::parse;
 use tauri::State;
 
-use crate::{file::standard_midi_file::load::load, state::file_state::FileState};
+use crate::state::file_state::FileState;
 
 #[tauri::command]
 pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result<(), String> {
@@ -16,13 +17,8 @@ pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result
     let mut buffer: Vec<u8> = vec![];
     file.read_to_end(&mut buffer).unwrap();
 
-    // SMF として格納する
-    let smf = load(&buffer).expect("Failed to parse SMF");
-
-    if smf.header_chunk.format != 0 {
-        return Err("format 0 以外の SMF は再生できません。".to_string());
-    }
-
+    // RCP ファイルとしてパースして、格納する
+    let song = parse(&buffer);
     file_buffer
         .file
         .lock()
@@ -30,10 +26,10 @@ pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result
         .replace(buffer);
 
     file_buffer
-        .smf
+        .song
         .lock()
         .expect("Failed to lock smf")
-        .replace(smf);
+        .replace(song);
 
     Ok(())
 }

@@ -1,19 +1,23 @@
 use std::sync::{Arc, Mutex};
 
-use crate::file::standard_midi_file::{EventBody, MetaEvent, StandardMidiFile};
 use crate::midi::send_message;
+use recomposer_file::track_block::types::{Track, TrackEvent};
+use recomposer_file::RcpFile;
 
 use super::play_status_thread::PlayStatusMessage;
+use super::prepare::PlayEvent;
 
 struct NoteOnKey {
     channel: u8,
     note: u8,
+    remain_to_note_off: u32,
 }
 
 pub fn playing_thread(
     midi_output_connection: Arc<Mutex<Option<midir::MidiOutputConnection>>>,
     receiver: std::sync::mpsc::Receiver<&str>,
-    smf: StandardMidiFile,
+    song: Vec<PlayEvent>,
+    time_base: u32,
     play_status_sender: std::sync::mpsc::Sender<PlayStatusMessage>,
 ) -> Result<(), String> {
     let mut midi_output = midi_output_connection
@@ -30,16 +34,13 @@ pub fn playing_thread(
 
     let mut note_on_keys: Vec<NoteOnKey> = Vec::new();
 
-    let time_base = u32::from(smf.header_chunk.time_base);
-
-    let track = &smf.track_chunks[0];
-
-    for event in track.data_body.iter() {
+    for event in song.iter() {
         match receiver.try_recv() {
             Ok("stop") => break,
             _ => (),
         }
 
+        // Wait for delta time
         loop {
             let now = std::time::Instant::now();
 
@@ -47,9 +48,7 @@ pub fn playing_thread(
 
             let elapsed_time = elapsed_time.as_millis();
 
-            let wait = (current_tempo / 1000)
-                * (delta_time_counter - last_tempo_changed_delta_time + event.delta_time)
-                / time_base;
+            // Todo: Wait
 
             if elapsed_time >= u128::from(wait) {
                 break;
@@ -58,107 +57,39 @@ pub fn playing_thread(
             std::thread::sleep(std::time::Duration::from_millis(5));
         }
 
-        delta_time_counter += event.delta_time;
-
-        // Event type
-        match &event.event_body {
-            EventBody::ChannelMessage(message) => {
-                match message[0] & 0xF0 {
-                    0x80 => {
-                        let channel = message[0] & 0x0F;
-                        let note = message[1];
-                        play_status_sender
-                            .send(PlayStatusMessage::NoteOff((channel, note)))
-                            .unwrap();
-                        note_on_keys.retain(|key| !(key.channel == channel && key.note == note));
-                    }
-                    0x90 => {
-                        // Note on, Velocity = 0 を Note off として扱う
-                        if message[2] == 0x00 {
-                            let channel = message[0] & 0x0F;
-                            let note = message[1];
-                            play_status_sender
-                                .send(PlayStatusMessage::NoteOff((channel, note)))
-                                .unwrap();
-                            note_on_keys
-                                .retain(|key| !(key.channel == channel && key.note == note));
-                        } else {
-                            let channel = message[0] & 0x0F;
-                            let note = message[1];
-                            play_status_sender
-                                .send(PlayStatusMessage::NoteOn((channel, note)))
-                                .unwrap();
-                            note_on_keys.push(NoteOnKey { channel, note });
-                        }
-                    }
-                    0xB0 => {
-                        let channel = message[0] & 0x0F;
-                        match message[1] {
-                            0x07 => {
-                                play_status_sender
-                                    .send(PlayStatusMessage::VolumeChange((channel, message[2])))
-                                    .unwrap();
-                            }
-                            0x0B => {
-                                play_status_sender
-                                    .send(PlayStatusMessage::ExpressionChange((
-                                        channel, message[2],
-                                    )))
-                                    .unwrap();
-                            }
-                            0x0A => {
-                                play_status_sender
-                                    .send(PlayStatusMessage::PanChange((channel, message[2])))
-                                    .unwrap();
-                            }
-                            0x5B => {
-                                play_status_sender
-                                    .send(PlayStatusMessage::ReverbChange((channel, message[2])))
-                                    .unwrap();
-                            }
-                            0x5D => {
-                                play_status_sender
-                                    .send(PlayStatusMessage::ChorusChange((channel, message[2])))
-                                    .unwrap();
-                            }
-                            0x4A => {
-                                play_status_sender
-                                    .send(PlayStatusMessage::CutOffFrequencyChange((
-                                        channel, message[2],
-                                    )))
-                                    .unwrap();
-                            }
-                            0x4B => {
-                                play_status_sender
-                                    .send(PlayStatusMessage::ResonanceChange((channel, message[2])))
-                                    .unwrap();
-                            }
-                            _ => (),
-                        }
-                    }
-                    0xE0 => {
-                        let channel = message[0] & 0x0F;
-                        play_status_sender
-                            .send(PlayStatusMessage::PitchBendChange((
-                                channel,
-                                u16::from(message[1]) + (u16::from(message[2]) << 7),
-                            )))
-                            .unwrap();
-                    }
-                    _ => (),
+        match event.event {
+            TrackEvent::Note(key_number, _, gate_time, velocity) => {
+                for key in &note_on_keys {
+                    play_status_sender
+                        .send(PlayStatusMessage::NoteOff((key.channel, key.note)))
+                        .unwrap();
+                    send_message(
+                        &mut midi_output,
+                        &[0x80 | key.channel, key.note, 0x00].to_vec(),
+                    );
                 }
+                note_on_keys.clear();
 
-                send_message(&mut midi_output, &message)
+                play_status_sender
+                    .send(PlayStatusMessage::NoteOn((0, key_number)))
+                    .unwrap();
+                send_message(
+                    &mut midi_output,
+                    &[0x90 | 0 /* channel */, key_number, velocity].to_vec(),
+                );
+
+                note_on_keys.push(NoteOnKey {
+                    channel: 0,
+                    note: key_number,
+                    remain_to_note_off: u32::from(gate_time),
+                });
             }
-            EventBody::SystemExclusiveMessage(message) => send_message(&mut midi_output, message),
-            EventBody::MetaEvent(MetaEvent::TempoChangeEvent(tempo)) => {
-                current_tempo = *tempo;
-                last_tempo_changed_time = std::time::Instant::now();
-                last_tempo_changed_delta_time = delta_time_counter;
-            }
-            EventBody::MetaEvent(MetaEvent::EndOfTrack) => (),
             _ => (),
         }
+
+        println!("Event!: {}", delta_time_counter);
+
+        delta_time_counter += u32::from(step_time);
     }
 
     // Note on 状態のキーをすべて Note off にする
