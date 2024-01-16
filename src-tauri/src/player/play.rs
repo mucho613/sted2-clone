@@ -7,9 +7,7 @@ use crate::state::{
     midi_output_state::MidiOutputState, sequencer_state::SequencerState,
 };
 
-use super::{
-    play_status_thread::play_status_thread, playing_thread::playing_thread, prepare::merge_tracks,
-};
+use super::{play_status_thread::play_status_thread, playing_thread::playing_thread};
 
 #[tauri::command]
 pub fn play(
@@ -29,9 +27,6 @@ pub fn play(
         return Err("MIDI 出力ポートが選択されていません。".to_string());
     }
 
-    // 複数のチャンネルのイベントを、時系列順に1つの Vec にまとめる
-    let play_sequence = merge_tracks(song.track_block.tracks);
-
     let (player_control_sender, player_control_receiver) = std::sync::mpsc::channel();
     let (play_status_sender, play_status_receiver) = std::sync::mpsc::channel();
     player_state
@@ -44,8 +39,8 @@ pub fn play(
         playing_thread(
             midi_output_connection,
             player_control_receiver,
-            play_sequence,
             play_status_sender,
+            song,
         )
         .unwrap();
     });

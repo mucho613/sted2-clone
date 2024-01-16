@@ -1,6 +1,8 @@
+use recomposer_file::track_block::types::TrackEvent;
+
 pub fn get_step_time_from_event(event: &TrackEvent) -> u8 {
     match *event {
-        TrackEvent::Note(step_time, _, _, _) => step_time,
+        TrackEvent::Note(_, step_time, _, _) => step_time,
         TrackEvent::UserExclusive(step_time, _) => step_time,
         TrackEvent::TrackExclusive(step_time, _) => step_time,
         TrackEvent::RolBase(step_time, _, _) => step_time,
