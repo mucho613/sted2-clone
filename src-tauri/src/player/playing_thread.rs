@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::midi::send_message;
-use recomposer_file::track_block::types::TrackEvent;
+use recomposer_file::event::types::TrackEvent;
 use recomposer_file::RcpFile;
 
 use super::play_status_thread::PlayStatusMessage;
@@ -54,12 +54,6 @@ pub fn playing_thread(
 
     let mut pointer = [0usize; 18];
 
-    tracks[0].1[0..40]
-        .iter()
-        .for_each(|(absolute_time, event)| {
-            println!("{}: {:?}", get_step_time_from_event(*event), absolute_time);
-        });
-
     loop {
         let current_time = std::time::Instant::now();
         let difference = current_time.duration_since(play_start_time).as_millis() as u32;
@@ -93,7 +87,11 @@ pub fn playing_thread(
         for (channel, event) in reserved {
             println!("{:?}", event);
             match *event {
-                TrackEvent::Note(key_number, _, _, velocity) => {
+                TrackEvent::Note {
+                    key_number,
+                    velocity,
+                    ..
+                } => {
                     play_status_sender
                         .send(PlayStatusMessage::NoteOn((channel, key_number)))
                         .unwrap();
