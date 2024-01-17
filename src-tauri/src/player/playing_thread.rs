@@ -27,7 +27,7 @@ pub fn playing_thread(
 
     let play_start_time = std::time::Instant::now();
     let mut delta_time_counter: u32 = 0;
-    let current_tempo: u32 = 500000; // Default BPM = 120
+    let current_tempo: u32 = 500000 / 1000; // Default BPM = 120
 
     // 絶対時間に変換する
     let tracks = song
@@ -62,7 +62,7 @@ pub fn playing_thread(
 
     loop {
         let current_time = std::time::Instant::now();
-        let difference = current_time.duration_since(play_start_time).as_micros() as u32;
+        let difference = current_time.duration_since(play_start_time).as_millis() as u32;
         delta_time_counter = song.header_block.time_base as u32 * difference / current_tempo;
 
         match receiver.try_recv() {
@@ -91,6 +91,7 @@ pub fn playing_thread(
         }
 
         for (channel, event) in reserved {
+            println!("{:?}", event);
             match *event {
                 TrackEvent::Note(key_number, _, _, velocity) => {
                     play_status_sender

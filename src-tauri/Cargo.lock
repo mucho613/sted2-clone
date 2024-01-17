@@ -2182,7 +2182,7 @@ checksum = "f2ff9a1f06a88b01621b7ae906ef0211290d1c8a168a15542486a8f61c0833b9"
 [[package]]
 name = "recomposer-file"
 version = "0.1.0"
-source = "git+https://github.com/mucho613/recomposer-file?rev=9d49ab0dbabcbb53463a91d0afcff0e50d9adc0b#9d49ab0dbabcbb53463a91d0afcff0e50d9adc0b"
+source = "git+https://github.com/mucho613/recomposer-file?rev=27f725b8229c8e15a2db1ef2b8efe7640de1d066#27f725b8229c8e15a2db1ef2b8efe7640de1d066"
 dependencies = [
  "nom",
 ]

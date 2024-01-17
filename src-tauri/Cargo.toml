@@ -21,7 +21,7 @@ serde_bytes = "0.11.9"
 nom = "7.1.3"
 toml = "0.8.8"
 encoding_rs = "0.8.33"
-recomposer-file = { git = "https://github.com/mucho613/recomposer-file", rev = "9d49ab0dbabcbb53463a91d0afcff0e50d9adc0b"}
+recomposer-file = { git = "https://github.com/mucho613/recomposer-file", rev = "27f725b8229c8e15a2db1ef2b8efe7640de1d066"}
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem
