@@ -109,6 +109,7 @@ pub fn playing_thread(
         std::thread::sleep(std::time::Duration::from_millis(5));
     }
 
+    // TODO: レコンポーザフォーマットでの再生機能が整ったら、以下のコードを有効にする
     // // Note on 状態のキーをすべて Note off にする
     // for key in note_on_keys {
     //     play_status_sender
