@@ -26,30 +26,7 @@ use tauri::Manager;
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            let config = config::load_config();
-
-            // config に記載された MIDI デバイスを自動で開く
-            let port = match config.midi_output_port {
-                Some(port_name) => {
-                    let midi_output = midi::midi_output();
-                    let ports = midi_output.ports();
-                    let selected_port = ports
-                        .iter()
-                        .position(|port| midi_output.port_name(port).unwrap() == port_name);
-
-                    match selected_port {
-                        Some(selected_port) => {
-                            let port = midi_output
-                                .connect(&ports[selected_port], "Primary port")
-                                .unwrap();
-
-                            Some(port)
-                        }
-                        None => None,
-                    }
-                }
-                None => None,
-            };
+            let port = initialize();
 
             let menu = menu::menu();
 
@@ -88,4 +65,23 @@ fn main() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn initialize() -> Option<midir::MidiOutputConnection> {
+    let config = config::load_config();
+
+    // config に記載された MIDI デバイスを自動で開く
+    let port_name = config.midi_output_port?;
+
+    let midi_output = midi::midi_output();
+    let ports = midi_output.ports();
+    let selected_port = ports
+        .iter()
+        .position(|port| midi_output.port_name(port).unwrap() == port_name)?;
+
+    let port = midi_output
+        .connect(&ports[selected_port], "Primary port")
+        .unwrap();
+
+    Some(port)
 }

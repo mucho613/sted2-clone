@@ -26,7 +26,7 @@ function Settings() {
         <h1>設定</h1>
       </header>
       <section>
-        <h2>MIDI 出力先ポート</h2>
+        <h2>MIDI出力先ポート</h2>
 
         {midiOutputPorts().length > 0 && (
           <select class="mt-2" onChange={handleChange}>
