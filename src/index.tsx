@@ -18,6 +18,6 @@ if (rootElement) {
         <Route path="/settings" component={Settings} />
       </Router>
     ),
-    rootElement,
+    rootElement
   );
 }
