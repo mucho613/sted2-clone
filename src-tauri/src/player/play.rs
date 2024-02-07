@@ -16,7 +16,11 @@ pub fn play(
     player_state: State<'_, SequencerState>,
     midi_output_state: State<'_, MidiOutputState>,
 ) -> Result<(), String> {
-    let song = file_state.song.lock().expect("Failed to lock smf").take();
+    let song = file_state
+        .rcpFile
+        .lock()
+        .expect("Failed to lock smf")
+        .take();
     let song = match song {
         Some(smf) => smf,
         None => return Err("ファイルが読み込まれていません。".to_string()),

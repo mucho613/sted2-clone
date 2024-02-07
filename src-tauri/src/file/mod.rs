@@ -4,9 +4,14 @@ use recomposer_file::parse;
 use tauri::State;
 
 use crate::state::file_state::FileState;
+use crate::state::song_state::SongState;
 
 #[tauri::command]
-pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result<(), String> {
+pub fn load_file(
+    file_path: String,
+    file_state: State<'_, FileState>,
+    song_state: State<'_, SongState>,
+) -> Result<(), String> {
     let file = File::open(file_path);
 
     let mut file = match file {
@@ -17,15 +22,12 @@ pub fn load_file(file_path: String, file_buffer: State<'_, FileState>) -> Result
     let mut buffer: Vec<u8> = vec![];
     file.read_to_end(&mut buffer).unwrap();
 
-    // RCP ファイルとしてパースして、格納する
-    let song = parse(&buffer);
-    file_buffer
-        .file
-        .lock()
-        .expect("Failed to lock file buffer")
-        .replace(buffer);
+    let rcpFile = parse(&buffer);
 
-    file_buffer
+    // TODO: ここで Song に変換
+    let song = todo!("convert rcpFile to Song");
+
+    song_state
         .song
         .lock()
         .expect("Failed to lock smf")

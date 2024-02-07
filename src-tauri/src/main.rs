@@ -6,6 +6,7 @@ mod file;
 mod menu;
 mod midi;
 mod player;
+mod song;
 mod state;
 
 use crate::file::load_file;
@@ -19,28 +20,29 @@ use std::{
 use midi::{get_midi_output_ports, open_midi_output_port};
 use state::{
     file_state::FileState, midi_connection_state::MidiConnectionState,
-    midi_output_state::MidiOutputState, sequencer_state::SequencerState,
+    midi_output_state::MidiOutputState, sequencer_state::SequencerState, song_state::SongState,
 };
 use tauri::Manager;
 
 fn main() {
     tauri::Builder::default()
         .setup(|app| {
-            let port = initialize();
+            let midi_output_connection = initialize();
 
             let menu = menu::menu();
-
             tauri::WindowBuilder::new(app, "main".to_string(), tauri::WindowUrl::App("/".into()))
                 .menu(menu)
                 .build()?;
 
             app.manage(FileState {
-                file: Mutex::new(None),
-                song: Mutex::new(None),
+                rcpFile: Mutex::new(None),
+            });
+            app.manage(SongState {
+                song: Arc::new(Mutex::new(None)),
             });
             app.manage(MidiConnectionState {
-                midi_output_connection: if port.is_some() {
-                    Arc::new(Mutex::new(Some(port.unwrap())))
+                midi_output_connection: if midi_output_connection.is_some() {
+                    Arc::new(Mutex::new(Some(midi_output_connection.unwrap())))
                 } else {
                     Arc::new(Mutex::new(None))
                 },
