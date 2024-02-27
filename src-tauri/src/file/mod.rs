@@ -3,15 +3,12 @@ use std::{fs::File, io::Read};
 use recomposer_file::parse;
 use tauri::State;
 
+use crate::song::from_rcp_file::from_rcp_file;
 use crate::state::file_state::FileState;
 use crate::state::song_state::SongState;
 
 #[tauri::command]
-pub fn load_file(
-    file_path: String,
-    file_state: State<'_, FileState>,
-    song_state: State<'_, SongState>,
-) -> Result<(), String> {
+pub fn load_file(file_path: String, song_state: State<'_, SongState>) -> Result<(), String> {
     let file = File::open(file_path);
 
     let mut file = match file {
@@ -22,10 +19,10 @@ pub fn load_file(
     let mut buffer: Vec<u8> = vec![];
     file.read_to_end(&mut buffer).unwrap();
 
-    let rcpFile = parse(&buffer);
+    let rcp_file = parse(&buffer);
 
     // TODO: ここで Song に変換
-    let song = todo!("convert rcpFile to Song");
+    let song = from_rcp_file(rcp_file);
 
     song_state
         .song

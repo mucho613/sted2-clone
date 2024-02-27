@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::midi::send_message;
+use crate::song::Song;
 use recomposer_file::event::types::TrackEvent;
 use recomposer_file::RcpFile;
 
@@ -17,7 +18,7 @@ pub fn playing_thread(
     midi_output_connection: Arc<Mutex<Option<midir::MidiOutputConnection>>>,
     receiver: std::sync::mpsc::Receiver<&str>,
     play_status_sender: std::sync::mpsc::Sender<PlayStatusMessage>,
-    song: RcpFile,
+    song: Song,
 ) -> Result<(), String> {
     let mut midi_output = midi_output_connection
         .lock()
@@ -31,7 +32,6 @@ pub fn playing_thread(
 
     // 絶対時間に変換する
     let tracks = song
-        .track_block
         .tracks
         .iter()
         .map(|track| {

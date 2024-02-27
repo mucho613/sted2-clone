@@ -1,3 +1,5 @@
+pub mod from_rcp_file;
+
 pub struct Song {
     name: String,
     tracks: Vec<Track>,

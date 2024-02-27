@@ -1,3 +1,5 @@
+use crate::song::Song;
+
 pub(super) mod play;
 pub(super) mod play_status;
 pub(super) mod play_status_thread;

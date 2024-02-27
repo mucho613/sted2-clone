@@ -3,26 +3,22 @@ use std::sync::Arc;
 use tauri::State;
 
 use crate::state::{
-    file_state::FileState, midi_connection_state::MidiConnectionState,
-    midi_output_state::MidiOutputState, sequencer_state::SequencerState,
+    midi_connection_state::MidiConnectionState, midi_output_state::MidiOutputState,
+    sequencer_state::SequencerState, song_state::SongState,
 };
 
 use super::{play_status_thread::play_status_thread, playing_thread::playing_thread};
 
 #[tauri::command]
 pub fn play(
-    file_state: State<'_, FileState>,
+    song_state: State<'_, SongState>,
     midi_connection_state: State<'_, MidiConnectionState>,
     player_state: State<'_, SequencerState>,
     midi_output_state: State<'_, MidiOutputState>,
 ) -> Result<(), String> {
-    let song = file_state
-        .rcpFile
-        .lock()
-        .expect("Failed to lock smf")
-        .take();
+    let song = song_state.song.lock().expect("Failed to lock smf").take();
     let song = match song {
-        Some(smf) => smf,
+        Some(song) => song,
         None => return Err("ファイルが読み込まれていません。".to_string()),
     };
 
