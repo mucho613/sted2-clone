@@ -7,4 +7,19 @@ pub struct Song {
 
 pub struct Track {
     events: Vec<recomposer_file::event::types::TrackEvent>,
+    measures: Vec<Measure>,
+    structure: Structure,
+}
+
+pub struct Measure {
+    events: Vec<recomposer_file::event::types::TrackEvent>,
+}
+
+pub struct Structure {
+    events: Vec<Event>,
+}
+
+pub struct Event {
+    absolute_time: u64,
+    event: recomposer_file::event::types::TrackEvent,
 }
