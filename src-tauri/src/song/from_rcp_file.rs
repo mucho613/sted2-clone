@@ -1,4 +1,6 @@
-use super::{Song, Track};
+use recomposer_file::event::types::TrackEvent;
+
+use super::{Measure, Song, Track};
 
 /// RCP ファイルから Song を生成
 pub fn from_rcp_file(rcp_file: recomposer_file::RcpFile) -> Song {
@@ -10,9 +12,33 @@ pub fn from_rcp_file(rcp_file: recomposer_file::RcpFile) -> Song {
         .into_iter()
         .map(|track| {
             let events = track.track_events;
-            Track { events }
+
+            let measures = vec![Measure {
+                events: vec![TrackEvent::BarLine],
+            }];
+
+            Track { events, measures }
         })
         .collect();
 
     Song { name, tracks }
+}
+
+// test of from_rcp_file
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use recomposer_file::parse;
+
+    #[test]
+    fn test_from_rcp_file() {
+        // Load file
+        let test_file = include_bytes!("../test.rcp");
+        let rcp_file = parse(test_file);
+
+        // let rcp_file = RcpFile("../test.rcp").unwrap();
+        let song = from_rcp_file(rcp_file);
+
+        println!("{:#?}", song);
+    }
 }
