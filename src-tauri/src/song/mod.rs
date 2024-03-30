@@ -8,11 +8,11 @@ pub struct Song {
 
 #[derive(Debug)]
 pub struct Track {
-    events: Vec<recomposer_file::event::types::TrackEvent>,
     measures: Vec<Measure>,
 }
 
 #[derive(Debug)]
 pub struct Measure {
+    step_time: u32,
     events: Vec<recomposer_file::event::types::TrackEvent>,
 }

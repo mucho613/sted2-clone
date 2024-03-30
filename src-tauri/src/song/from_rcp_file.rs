@@ -13,11 +13,17 @@ pub fn from_rcp_file(rcp_file: recomposer_file::RcpFile) -> Song {
         .map(|track| {
             let events = track.track_events;
 
-            let measures = vec![Measure {
-                events: vec![TrackEvent::BarLine],
-            }];
+            // events には TrackEvent::MeasureEnd を含めた全イベントが含まれている。
+            // measures には、events を TrackEvent::MeasureEnd ごとに区切って格納する。
+            let measures: Vec<Measure> = events
+                .split(|event| matches!(event, TrackEvent::MeasureEnd))
+                .map(|events| Measure {
+                    events: events.to_vec(),
+                    step_time: 0,
+                })
+                .collect();
 
-            Track { events, measures }
+            Track { measures }
         })
         .collect();
 
