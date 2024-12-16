@@ -1,5 +1,7 @@
-# STed2 Clone
+# Tauri + React + Typescript
 
-このアプリケーションでは、画面表示用のフォントとして「KHドットフォント」(http://jikasei.me/font/kh-dotfont/) を使用しています。
-Licensed under SIL Open Font License 1.1 (http://scripts.sil.org/OFL)
-© Keitarou Hiraki, Font Silo 1990-2015.
+This template should help get you started developing with Tauri, React and Typescript in Vite.
+
+## Recommended IDE Setup
+
+- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
