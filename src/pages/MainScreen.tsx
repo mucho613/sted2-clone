@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useInvoke } from "../useInvoke";
+import MenuItem from "../features/MenuItem/MenuItem";
 
 function MainScreen() {
   const [filePath, setFilePath] = useState(
@@ -33,23 +34,9 @@ function MainScreen() {
           type="text"
           onInput={(e) => setFilePath("A")}
         />
-        <div className="flex gap-1">
-          <div className="flex flex-col w-[66px] gap-1">
-            <button
-              className="pl-px text-left h-[17px] bg-sted-blue leading-none"
-              type="button"
-              onClick={handleLoad}
-            >
-              LOAD
-            </button>
-            <button
-              className="pl-px text-left h-[17px] bg-sted-blue leading-none"
-              type="button"
-              onClick={handlePlay}
-            >
-              PLAY
-            </button>
-          </div>
+        <div className="flex flex-col w-[66px] gap-1">
+          <MenuItem label="LOAD" isSelected={false} onClick={handleLoad} />
+          <MenuItem label="PLAY" isSelected={false} onClick={handlePlay} />
         </div>
       </div>
 
