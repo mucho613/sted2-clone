@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useInvoke } from "../useInvoke";
 import MenuItem from "../features/MenuItem/MenuItem";
 import Header from "../features/Header/Header";
+import Menu from "../features/Menu/Menu";
 
 function MainScreen() {
   const [filePath] = useState(
@@ -31,11 +32,15 @@ function MainScreen() {
       <div className="mb-[11px]">
         <Header freeMemory={0} usedMemory={0} trackNumber={0} moduleName={"Roland SC-55"} />
       </div>
-      <div>
+
+      <div className="flex">
         {/* Left column */}
-        <div className="flex flex-col w-[66px] gap-1">
-          <MenuItem label="LOAD" isSelected={false} onClick={handleLoad} />
-          <MenuItem label="PLAY" isSelected={false} onClick={handlePlay} />
+        <div className="flex flex-col gap-y-[11px]">
+          <div className="w-[97ox] h-[57px] border border-sted-gray" />
+
+          <div className="ml-[7px]">
+            <Menu />
+          </div>
         </div>
 
         {/* Right column */}

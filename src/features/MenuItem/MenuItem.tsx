@@ -1,7 +1,7 @@
 type Props = {
   label: string;
-  isSelected: boolean;
-  onClick: () => void;
+  isSelected?: boolean;
+  onClick?: () => void;
 };
 
 function MenuItem(props: Props) {
