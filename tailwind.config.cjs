@@ -9,11 +9,11 @@ module.exports = {
         gray: "#686877", // 枠線
         lightgray: "#686877", // Edit 画面のカーソル
         black: "#070016", // 背景
-      }
+      },
     },
     extend: {
       fontFamily: {
-        "kodenmachou-12": ['KHドット小伝馬町12'],
+        "kodenmachou-12": ["KHドット小伝馬町12"],
       },
     },
   },

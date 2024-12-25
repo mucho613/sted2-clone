@@ -1,20 +1,17 @@
-import { createSignal } from "solid-js";
+import { useState } from "react";
 import { useInvoke } from "../useInvoke";
-import { useNavigate } from "@solidjs/router";
 
 function MainScreen() {
-  const [filePath, setFilePath] = createSignal(
-    "C:\\Users\\mucho\\OneDrive\\Music\\MIDI\\INTERNET\\ANOMARIA\\gs201\\G_S201.RCP",
+  const [filePath, setFilePath] = useState(
+    "C:\\TEST.RCP",
   );
 
-  const [error, setError] = createSignal("");
+  const [error, setError] = useState("");
 
   const { loadFile, play } = useInvoke();
 
-  const navigate = useNavigate();
-
   const handleLoad = () => {
-    loadFile(filePath())
+    loadFile(filePath)
       .then(() => setError(""))
       .catch((error) => setError(error));
   };
@@ -23,31 +20,30 @@ function MainScreen() {
     play()
       .then(() => {
         setError("");
-        navigate("/play-panel");
       })
       .catch((error) => setError(error));
   };
 
   return (
-    <div class="container m-4">
+    <div className="container m-4">
       <div>
         <input
-          class="mb-1 w-full"
-          value={filePath()}
+          className="mb-1 w-full"
+          value={filePath}
           type="text"
-          onInput={(e) => setFilePath(e.target.value)}
+          onInput={(e) => setFilePath("A")}
         />
-        <div class="flex gap-1">
-          <div class="flex flex-col w-[66px] gap-1">
+        <div className="flex gap-1">
+          <div className="flex flex-col w-[66px] gap-1">
             <button
-              class="pl-px text-left h-[17px] bg-sted-blue leading-none"
+              className="pl-px text-left h-[17px] bg-sted-blue leading-none"
               type="button"
               onClick={handleLoad}
             >
               LOAD
             </button>
             <button
-              class="pl-px text-left h-[17px] bg-sted-blue leading-none"
+              className="pl-px text-left h-[17px] bg-sted-blue leading-none"
               type="button"
               onClick={handlePlay}
             >
@@ -57,7 +53,7 @@ function MainScreen() {
         </div>
       </div>
 
-      <p class="fixed bottom-4 left-4">{error()}</p>
+      <p className="fixed bottom-4 left-4">{error}</p>
     </div>
   );
 }
