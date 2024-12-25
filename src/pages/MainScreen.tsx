@@ -26,7 +26,7 @@ function MainScreen() {
   };
 
   return (
-    <div className="container m-4">
+    <div className="p-4">
       <div>
         <input
           className="mb-1 w-full"
