@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { useInvoke } from "../useInvoke";
 
 function MainScreen() {
@@ -11,8 +10,6 @@ function MainScreen() {
 
   const { loadFile, play } = useInvoke();
 
-  const navigate = useNavigate();
-
   const handleLoad = () => {
     loadFile(filePath)
       .then(() => setError(""))
@@ -23,7 +20,6 @@ function MainScreen() {
     play()
       .then(() => {
         setError("");
-        navigate("/play-panel");
       })
       .catch((error) => setError(error));
   };
