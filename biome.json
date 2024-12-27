@@ -15,6 +15,19 @@
   "organizeImports": { "enabled": true },
   "linter": {
     "enabled": true,
-    "rules": { "recommended": true }
+    "rules": {
+      "recommended": true,
+      "correctness": {
+        "noUnusedVariables": {
+          "level": "error"
+        },
+        "noUnusedImports": {
+          "level": "error"
+        }
+      }
+    }
+  },
+  "javascript": {
+    "jsxRuntime": "reactClassic"
   }
 }
