@@ -1,31 +1,9 @@
 import { useState } from "react";
-import { useInvoke } from "../useInvoke";
-import MenuItem from "../features/MenuItem/MenuItem";
 import Header from "../features/Header/Header";
 import Menu from "../features/Menu/Menu";
 
 function MainScreen() {
-  const [filePath] = useState(
-    "C:\\TEST.RCP",
-  );
-
-  const [error, setError] = useState("");
-
-  const { loadFile, play } = useInvoke();
-
-  const handleLoad = () => {
-    loadFile(filePath)
-      .then(() => setError(""))
-      .catch((error) => setError(error));
-  };
-
-  const handlePlay = () => {
-    play()
-      .then(() => {
-        setError("");
-      })
-      .catch((error) => setError(error));
-  };
+  const [error, _setError] = useState("");
 
   return (
     <div className="p-4 flex flex-col">
