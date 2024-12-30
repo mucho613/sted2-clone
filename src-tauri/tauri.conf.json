@@ -12,9 +12,9 @@
   "app": {
     "windows": [
       {
-        "title": "sted2-clone",
-        "width": 800,
-        "height": 600
+        "title": "STed2 Clone",
+        "width": 824,
+        "height": 580
       }
     ],
     "security": {
