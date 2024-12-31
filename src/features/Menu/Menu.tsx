@@ -23,7 +23,7 @@ function Menu() {
   ]
 
   return (
-    <div className="flex flex-col w-[66px] gap-1">
+    <div className="flex flex-col w-[66px] gap-y-1">
       {menuItems.map(menuItem => <MenuItem key={menuItem} label={menuItem} />)}
     </div>
   );
