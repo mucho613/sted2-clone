@@ -15,7 +15,7 @@ function MainScreen() {
       <div className="flex gap-x-[5px]">
         {/* Left column */}
         <div className="flex flex-col gap-y-[11px]">
-          <div className="w-[97ox] h-[57px] border border-sted-gray" />
+          <div className="w-[97px] h-[57px] border border-sted-gray" />
 
           <div className="ml-[7px]">
             <Menu />
