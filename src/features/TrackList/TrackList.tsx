@@ -18,7 +18,7 @@ function TrackList() {
   return (
     <table className="table-fixed border border-sted-gray">
       <thead>
-        <tr className="*:font-normal bg-sted-gray text-left *:py-0 oy-">
+        <tr className="h-[17px] *:font-normal bg-sted-gray text-left *:py-0">
           <th className="w-[19px] pl-0.5 pr-px">TR</th>
           <th className="w-[43px] pl-[7px] pr-1">MODE</th>
           <th className="w-8 px-1">CH.</th>
