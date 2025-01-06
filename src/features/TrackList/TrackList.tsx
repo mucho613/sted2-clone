@@ -23,9 +23,9 @@ function TrackList() {
   return (
     <table className="table-fixed border border-sted-gray">
       <thead>
-        <tr className="h-[17px] *:font-normal bg-sted-gray text-left *:py-0">
-          <th className="w-[19px] pl-0.5 pr-px">TR</th>
-          <th className="w-[43px] pl-[7px] pr-1">MODE</th>
+        <tr className="h-4 *:font-normal bg-sted-gray text-left *:py-0">
+          <th className="px-px">TR</th>
+          <th className="w-[43px] pl-[6px] pr-1">MODE</th>
           <th className="w-8 px-1">CH.</th>
           <th className="w-8 px-1">ST+</th>
           <th className="w-8 px-1">K#+</th>

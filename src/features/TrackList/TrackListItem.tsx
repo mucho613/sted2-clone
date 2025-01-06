@@ -21,7 +21,7 @@ function TrackListItem(props: Props) {
 
   return (
     <tr className="h-4 *:border-r *:border-sted-gray *:py-0 first:h-5 first:align-bottom last:h-[21px] last:align-top">
-      <td className="text-right bg-sted-blue border-none">{trackNumber}</td>
+      <td className="text-right bg-sted-blue border-none w-[18px]">{trackNumber}</td>
       <td className="text-right capitalize pr-[3px]">{mode}</td>
       <td className="pl-1">
         {midiOutput ? (
