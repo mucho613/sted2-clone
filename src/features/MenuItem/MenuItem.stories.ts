@@ -19,3 +19,11 @@ export const Default: Story = {
     onClick: fn(),
   },
 };
+
+export const Selected: Story = {
+  args: {
+    label: "STed2",
+    isSelected: true,
+    onClick: fn(),
+  },
+};
