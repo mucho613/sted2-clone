@@ -8,6 +8,7 @@ module.exports = {
         blue: "#2C4A7E", // ボタンの背景
         gray: "#686877", // 枠線
         lightgray: "#686877", // Edit 画面のカーソル
+        extralightgray: "#D1D1D1", // トラック一覧の "Play" の文字
         black: "#070016", // 背景、white が背景の場合のテキスト
       },
     },
