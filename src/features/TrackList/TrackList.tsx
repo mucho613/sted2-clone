@@ -25,7 +25,7 @@ function TrackList() {
       <thead>
         <tr className="h-4 *:font-normal bg-sted-gray text-left *:py-0">
           <th className="px-px">TR</th>
-          <th className="w-[43px] pl-[6px] pr-1">MODE</th>
+          <th className="w-[43px] pl-[7px] pr-1">MODE</th>
           <th className="w-8 px-1">CH.</th>
           <th className="w-8 px-1">ST+</th>
           <th className="w-8 px-1">K#+</th>
