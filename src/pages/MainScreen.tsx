@@ -23,9 +23,13 @@ function MainScreen() {
         </div>
 
         {/* Right column */}
+        {/* File & song info */}
         <div className="flex flex-col gap-y-1.5">
-          {/* File & song info */}
-          <div className="flex flex-col w-[643px] h-[122px] border border-sted-gray" />
+          <div className="flex flex-col w-[643px] h-[41px] border border-sted-gray" />
+          <div className="flex gap-x-[7px]">
+            <div className="flex flex-col w-[323px] h-[75px] border border-sted-gray" />
+            <div className="flex flex-col w-[313px] h-[75px] border border-sted-gray" />
+          </div>
           <TrackList />
         </div>
       </div>
