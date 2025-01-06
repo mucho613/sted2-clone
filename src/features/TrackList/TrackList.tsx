@@ -5,8 +5,13 @@ function TrackList() {
   const tracks: Track[] = [...new Array(18)].map((_, index) => ({
     trackNumber: index + 1,
     mode: "play",
-    port: "A",
-    channelNumber: index < 16 ? index + 1 : 0,
+    midiOutput:
+      index < 16
+        ? {
+            port: "A",
+            channel: index + 1,
+          }
+        : undefined,
     stepOffset: 0,
     keyOffset: 0,
     rhythmTrack: false,

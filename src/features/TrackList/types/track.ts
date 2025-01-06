@@ -1,8 +1,7 @@
 type Track = {
   trackNumber: number;
   mode: string;
-  port: string;
-  channelNumber: number;
+  midiOutput?: TrackMidiOutput;
   stepOffset: number;
   keyOffset: number;
   rhythmTrack: boolean;
@@ -11,4 +10,9 @@ type Track = {
   totalStep: number;
 };
 
-export type { Track };
+type TrackMidiOutput = {
+  port: string;
+  channel: number;
+};
+
+export type { Track, TrackMidiOutput };

@@ -10,8 +10,7 @@ function TrackListItem(props: Props) {
   const {
     trackNumber,
     mode,
-    port,
-    channelNumber,
+    midiOutput,
     stepOffset,
     keyOffset,
     rhythmTrack,
@@ -25,8 +24,14 @@ function TrackListItem(props: Props) {
       <td className="text-right bg-sted-blue border-none">{trackNumber}</td>
       <td className="text-right capitalize pr-[3px]">{mode}</td>
       <td className="pl-1">
-        <span className="inline-block w-2">{port}</span>
-        <span className="inline-block w-4 text-right">{channelNumber}</span>
+        {midiOutput ? (
+          <>
+            <span className="inline-block w-2">{midiOutput.port}</span>
+            <span className="inline-block w-4 text-right">{midiOutput.channel}</span>
+          </>
+        ) : (
+          "OFF"
+        )}
       </td>
       <td className="text-right pr-[3px]">{stepOffset}</td>
       <td className="text-right pr-[3px]">{keyOffset}</td>
