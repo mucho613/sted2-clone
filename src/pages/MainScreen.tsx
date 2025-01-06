@@ -9,7 +9,7 @@ function MainScreen() {
   return (
     <div className="mt-[33px] ml-7 flex flex-col bg-sted-black">
       <div className="mb-[11px]">
-        <Header freeMemory={0} usedMemory={0} trackNumber={0} moduleName={"Roland SC-55"} />
+        <Header freeMemory={589356} usedMemory={0} trackNumber={1} moduleName={"Roland SC-55"} />
       </div>
 
       <div className="flex gap-x-[5px]">

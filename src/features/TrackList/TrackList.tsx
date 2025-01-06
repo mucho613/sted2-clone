@@ -13,8 +13,8 @@ function TrackList() {
           }
         : undefined,
     stepOffset: 0,
-    keyOffset: 0,
-    rhythmTrack: false,
+    keyOffset: index === 9 ? undefined : 0,
+    rhythmTrack: index === 9,
     trackMemo: "",
     step: 0,
     totalStep: 0,

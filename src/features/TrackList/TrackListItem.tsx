@@ -34,7 +34,7 @@ function TrackListItem(props: Props) {
         )}
       </td>
       <td className="text-right pr-[3px]">{stepOffset}</td>
-      <td className="text-right pr-[3px]">{keyOffset}</td>
+      <td className="text-right pr-[3px]">{keyOffset ?? "OFF"}</td>
       <td className="pl-1">{rhythmTrack ? "ON" : "OFF"}</td>
       <td className="pl-1">{trackMemo}</td>
       <td className="text-right pr-[5px]">{step}</td>

@@ -3,8 +3,8 @@ type Track = {
   mode: string;
   midiOutput?: TrackMidiOutput;
   stepOffset: number;
-  keyOffset: number;
-  rhythmTrack: boolean;
+  keyOffset?: number;
+  rhythmTrack?: boolean;
   trackMemo: string;
   step: number;
   totalStep: number;

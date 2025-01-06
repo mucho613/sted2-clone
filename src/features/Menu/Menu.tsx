@@ -24,7 +24,7 @@ function Menu() {
 
   return (
     <div className="flex flex-col w-[66px] gap-y-1">
-      {menuItems.map(menuItem => <MenuItem key={menuItem} label={menuItem} />)}
+      {menuItems.map((menuItem, index) => <MenuItem key={menuItem} isSelected={index === 0} label={menuItem} />)}
     </div>
   );
 }

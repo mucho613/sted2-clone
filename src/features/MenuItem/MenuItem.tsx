@@ -10,7 +10,7 @@ function MenuItem(props: Props) {
   return (
     <button
       className={`
-        pl-px text-left h-[17px] leading-none
+        pl-px pt-px text-left h-[17px] leading-none
         ${isSelected ? "bg-sted-white text-sted-black" : "bg-sted-blue text-sted-white"}
       `}
       type="button"
