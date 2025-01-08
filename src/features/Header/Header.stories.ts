@@ -16,6 +16,6 @@ export const Default: Story = {
     freeMemory: 589356,
     usedMemory: 0,
     trackNumber: 1,
-    moduleName: "Roland SC-55",
+    moduleName: "MODULE: TestModuleName",
   },
 };
