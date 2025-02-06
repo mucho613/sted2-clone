@@ -5,12 +5,12 @@
 @layer base {
   @font-face {
     font-family: "KHドット小伝馬町16";
-    src: url("./assets/fonts/KH-Dot-Kodenmacho-16.woff") format("woff");
+    src: url("./assets/fonts/KH-Dot-Kodenmachou-16.woff") format("woff");
   }
 
   @font-face {
     font-family: "KHドット小伝馬町12";
-    src: url("./assets/fonts/KH-Dot-Kodenmacho-12.woff") format("woff");
+    src: url("./assets/fonts/KH-Dot-Kodenmachou-12.woff") format("woff");
   }
 
   html {
