@@ -38,7 +38,8 @@ pub fn parse_header_block(file: &[u8]) -> IResult<&[u8], HeaderBlock, Error<&[u8
         let (file, user_exclusive) = take::<usize, &[u8], Error<&[u8]>>(48usize)(acc.0).unwrap();
 
         acc.1.push(UserExclusive {
-            message: user_exclusive.try_into().unwrap(),
+            memo: user_exclusive[0..24].try_into().unwrap(),
+            body: user_exclusive[24..48].try_into().unwrap(),
         });
 
         (file, acc.1)

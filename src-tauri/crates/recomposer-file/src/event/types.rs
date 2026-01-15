@@ -1,4 +1,4 @@
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TrackEvent {
     Note {
         step_time: u8,
@@ -89,4 +89,8 @@ pub enum TrackEvent {
     },
     MeasureEnd,
     EndOfTrack,
+    Unknown {
+        event_type: u8,
+        data: [u8; 3],
+    },
 }

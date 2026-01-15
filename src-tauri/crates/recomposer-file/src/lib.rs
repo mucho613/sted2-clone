@@ -5,7 +5,7 @@ pub mod event;
 pub mod header_block;
 pub mod track_block;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RcpFile {
     pub header_block: HeaderBlock,
     pub track_block: TrackBlock,

@@ -3,7 +3,7 @@ use std::vec;
 use nom::{
     bytes::complete::take,
     error::Error,
-    number::complete::{be_u16, be_u8},
+    number::complete::{le_u16, le_u8},
     IResult,
 };
 
@@ -12,13 +12,13 @@ use crate::event::{parse::parse_track_event, types::TrackEvent};
 use super::types::{Track, TrackBlock, TrackHeader, TrackType};
 
 fn parse_track_header(i: &[u8]) -> IResult<&[u8], TrackHeader, Error<&[u8]>> {
-    let (i, size) = be_u16(i)?;
-    let (i, track_number) = be_u8(i)?;
-    let (i, track_type) = be_u8(i)?;
-    let (i, channel) = be_u8(i)?;
-    let (i, key_bias) = be_u8(i)?;
-    let (i, step_bias) = be_u8(i)?;
-    let (i, is_muting) = be_u8(i)?;
+    let (i, size) = le_u16(i)?;
+    let (i, track_number) = le_u8(i)?;
+    let (i, track_type) = le_u8(i)?;
+    let (i, channel) = le_u8(i)?;
+    let (i, key_bias) = le_u8(i)?;
+    let (i, step_bias) = le_u8(i)?;
+    let (i, is_muting) = le_u8(i)?;
     let (i, comment) = take(36usize)(i)?;
 
     let track_type = match track_type {

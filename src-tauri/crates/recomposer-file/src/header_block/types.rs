@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HeaderBlock {
     pub version: [u8; 32],
     pub title: [u8; 64],
@@ -17,20 +17,21 @@ pub struct HeaderBlock {
     pub user_exclusives: [UserExclusive; 8],
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TimeSignature {
     pub numerator: u8,
     pub denominator: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RhythmNote {
     pub name: [u8; 14],
     pub note_number: u8,
     pub gate_type: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct UserExclusive {
-    pub message: [u8; 48],
+    pub memo: [u8; 24],
+    pub body: [u8; 24],
 }

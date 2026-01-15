@@ -1,23 +1,23 @@
 use crate::event::types::TrackEvent;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TrackBlock {
     pub tracks: Vec<Track>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Track {
     pub track_header: TrackHeader,
     pub track_events: Vec<TrackEvent>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TrackType {
     Normal,
     Rhythm,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TrackHeader {
     pub size: u16,
     pub track_number: u8,
