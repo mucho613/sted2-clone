@@ -3,11 +3,11 @@ name = "sted2-clone"
 version = "0.1.0"
 description = "A Tauri App"
 authors = ["you"]
-edition = "2021"
+edition = "2024"
 
 [workspace]
 members = [
-  "crates/recomposer-file", "crates/sted-cli",
+  "crates/recomposer-file", "crates/sted-cli", "crates/sted-core",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

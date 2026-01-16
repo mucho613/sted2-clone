@@ -1,7 +1,6 @@
 [package]
-name = "recomposer-file"
+name = "sted-core"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-nom = "8.0.0"
