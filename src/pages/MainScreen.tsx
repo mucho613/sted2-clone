@@ -3,9 +3,14 @@ import Header from "../features/Header/Header";
 import Menu from "../features/Menu/Menu";
 import TrackList from "../features/TrackList/TrackList";
 import SongInfo from "../features/SongInfo/SongInfo";
+import { MENU_ITEMS } from "../features/Menu/constant/menuItems";
+import { useMenuHotkeys } from "../features/Menu/useMenuHotkeys";
 
 function MainScreen() {
   const [error, _setError] = useState("");
+  const [selectedItemId, setSelectedItemId] = useState<string>(MENU_ITEMS[0].id);
+
+  useMenuHotkeys({ selectedItemId, setSelectedItemId });
 
   return (
     <div className="mt-[33px] ml-7 flex flex-col bg-sted-black">
@@ -24,7 +29,7 @@ function MainScreen() {
           <div className="w-[97px] h-[57px] border border-sted-gray" />
 
           <div className="ml-[7px]">
-            <Menu />
+            <Menu selectedItemId={selectedItemId} />
           </div>
         </div>
 

@@ -1,30 +1,22 @@
 import MenuItem from "../MenuItem/MenuItem";
+import { MENU_ITEMS } from "./constant/menuItems";
 
-function Menu() {
-  const menuItems = [
-    "LOAD",
-    "SAVE",
-    "EDIT&SET",
-    "PLAY",
-    "RECORD",
-    "FILTER",
-    "TIME&KEY",
-    "TITLE",
-    "MEMO",
-    "PART ASS",
-    "RHY ASSI",
-    "USER EXC",
-    "CM64 CON",
-    "SC55 CON",
-    "OPTION",
-    "UNIT SEL",
-    "INIT",
-    "EXIT"
-  ]
+type Props = {
+  selectedItemId: string;
+}
+
+function Menu(props: Props) {
+  const { selectedItemId } = props;
 
   return (
     <div className="flex flex-col w-[66px] gap-y-1">
-      {menuItems.map((menuItem, index) => <MenuItem key={menuItem} isSelected={index === 0} label={menuItem} />)}
+      {MENU_ITEMS.map((menuItem) => (
+        <MenuItem
+          key={menuItem.id}
+          isSelected={selectedItemId === menuItem.id}
+          label={menuItem.label}
+        />
+      ))}
     </div>
   );
 }
