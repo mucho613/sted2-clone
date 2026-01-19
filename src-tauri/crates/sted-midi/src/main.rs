@@ -2,7 +2,7 @@ use std::io::Write;
 use std::time::Duration;
 
 fn main() {
-    let port_name = "COM6";
+    let port_name = "COM1";
     let baud_rate = 38_400u32;
 
     let mut port = match serialport::new(port_name, baud_rate)
@@ -22,8 +22,10 @@ fn main() {
 
     println!("Opened {} at {} bps", port_name, baud_rate);
 
-    // GM Reset command payload
-    let test_payload: &[u8] = &[0xF0, 0x7E, 0x7F, 0x09, 0x01, 0xF7];
+    // GS Reset command payload
+    let test_payload: &[u8] = &[
+        0xF0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41, 0xF7,
+    ];
 
     if let Err(e) = port.write_all(test_payload) {
         eprintln!("write_all failed: {}", e);
