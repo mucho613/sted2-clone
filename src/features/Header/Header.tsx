@@ -1,4 +1,5 @@
 type Props = {
+  size: "default" | "half";
   freeMemory: number;
   usedMemory: number;
   trackNumber: number;
@@ -6,7 +7,7 @@ type Props = {
 };
 
 function Header(props: Props) {
-  const { freeMemory, usedMemory, trackNumber, moduleName } = props;
+  const { size, freeMemory, usedMemory, trackNumber, moduleName } = props;
 
   return (
     <div className="flex items-start">
@@ -24,7 +25,11 @@ function Header(props: Props) {
       </p>
 
       {/* Title area */}
-      <div className="h-8 w-[272px] bg-sted-blue border border-sted-gray" />
+      {size === "default" ? (
+        <div className="h-8 w-[272px] bg-sted-blue border border-sted-gray" />
+      ) : (
+        <div className="h-4 w-[272px] bg-sted-blue border border-sted-gray" />
+      )}
     </div>
   );
 }

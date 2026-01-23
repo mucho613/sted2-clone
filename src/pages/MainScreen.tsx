@@ -16,6 +16,7 @@ function MainScreen() {
     <div className="mt-[33px] ml-7 flex flex-col bg-sted-black">
       <div className="mb-[11px]">
         <Header
+          size="default"
           freeMemory={589356}
           usedMemory={0}
           trackNumber={1}
