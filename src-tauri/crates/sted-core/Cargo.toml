@@ -4,3 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+encoding_rs = "0.8.35"
+
+recomposer-file = { path = "../recomposer-file" }
+sted-midi = { path = "../sted-midi" }

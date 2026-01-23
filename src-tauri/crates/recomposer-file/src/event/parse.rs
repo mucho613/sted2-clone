@@ -1,4 +1,4 @@
-use nom::{error::Error, number::complete::le_u8, IResult};
+use nom::{IResult, error::Error, number::complete::le_u8};
 
 use super::{
     comment_event::take_comment_event, exclusive_event::take_track_exclusive_event,

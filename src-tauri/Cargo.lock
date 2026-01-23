@@ -3477,11 +3477,17 @@ version = "0.1.0"
 dependencies = [
  "encoding_rs",
  "recomposer-file",
+ "sted-core",
 ]
 
 [[package]]
 name = "sted-core"
 version = "0.1.0"
+dependencies = [
+ "encoding_rs",
+ "recomposer-file",
+ "sted-midi",
+]
 
 [[package]]
 name = "sted-midi"

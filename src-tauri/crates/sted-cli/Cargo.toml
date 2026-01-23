@@ -7,3 +7,4 @@ edition = "2024"
 encoding_rs = "0.8.35"
 
 recomposer-file = { path = "../recomposer-file" }
+sted-core = { path = "../sted-core" }
