@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     label: "STed2",
-    isSelected: false,
+    state: "normal",
     onClick: fn(),
   },
 };
@@ -23,7 +23,15 @@ export const Default: Story = {
 export const Selected: Story = {
   args: {
     label: "STed2",
-    isSelected: true,
+    state: "selected",
+    onClick: fn(),
+  },
+};
+
+export const Active: Story = {
+  args: {
+    label: "STed2",
+    state: "active",
     onClick: fn(),
   },
 };

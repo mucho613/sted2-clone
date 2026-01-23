@@ -13,7 +13,7 @@ function Menu(props: Props) {
       {MENU_ITEMS.map((menuItem) => (
         <MenuItem
           key={menuItem.id}
-          isSelected={selectedItemId === menuItem.id}
+          state={selectedItemId === menuItem.id ? "selected" : "normal"}
           label={menuItem.label}
         />
       ))}

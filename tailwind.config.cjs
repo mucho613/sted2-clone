@@ -10,6 +10,7 @@ module.exports = {
         lightgray: "#686877", // Edit 画面のカーソル
         extralightgray: "#D1D1D1", // トラック一覧の "Play" の文字
         black: "#070016", // 背景、white が背景の場合のテキスト
+        cyan: "#00E7E7", // アクティブなメニュー項目
       },
     },
     extend: {
