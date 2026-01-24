@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "../features/Header/Header";
 import { MENU_ITEMS } from "../features/Menu/constant/menuItems";
 import { useMenuHotkeys } from "../features/Menu/useMenuHotkeys";
+import EventList from "../features/TrackEdit/EventList/EventList";
 
 function TrackEditScreen() {
   const [error, _setError] = useState("");
@@ -23,6 +24,8 @@ function TrackEditScreen() {
         {/* Message area */}
         <div className="w-full h-4" />
       </div>
+
+      <EventList trackMemo={""} trackNumber={1} measures={1} port={"A"} channel={1} usedMemory={0} />
 
       <p className="fixed bottom-4 left-4">{error}</p>
     </div>
