@@ -19,4 +19,6 @@ const MENU_ITEMS = [
   { id: "EXIT", label: "EXIT" },
 ] as const;
 
+export type MenuItemId = (typeof MENU_ITEMS)[number]["id"];
+
 export { MENU_ITEMS };

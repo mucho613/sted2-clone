@@ -1,14 +1,15 @@
 import { useHotkeys } from "react-hotkeys-hook";
-import { MENU_ITEMS } from "./constant/menuItems";
+import { MENU_ITEMS, type MenuItemId } from "./constant/menuItems";
 
 type Params = {
-  selectedItemId: string;
-  setSelectedItemId: (id: string) => void;
+  selectedItemId: MenuItemId;
+  setSelectedItemId: (id: MenuItemId) => void;
+  // Enter キーで選択項目を実行
+  onEnter: (menuItemId: MenuItemId) => void;
 };
 
 export const useMenuHotkeys = (params: Params) => {
-  const { selectedItemId, setSelectedItemId } = params;
-
+  const { selectedItemId, setSelectedItemId, onEnter } = params;
   // 前の項目に移動
   useHotkeys(
     "ArrowUp",
@@ -50,4 +51,13 @@ export const useMenuHotkeys = (params: Params) => {
   useHotkeys("d", () => setSelectedItemId("UNIT_SELECT"), []);
   useHotkeys("i", () => setSelectedItemId("INIT"), []);
   useHotkeys("x", () => setSelectedItemId("EXIT"), []);
+
+  // Enter キーで選択項目を実行
+  useHotkeys(
+    "Enter",
+    () => {
+      onEnter(selectedItemId);
+    },
+    [selectedItemId, onEnter],
+  );
 };

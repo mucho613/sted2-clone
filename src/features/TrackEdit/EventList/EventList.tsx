@@ -19,7 +19,6 @@ function EventList(props: Props) {
 
   return <div className="w-[306px]">
     <div className="bg-sted-blue h-[17px]">M:{trackMemo}</div>
-    {/* 各 dd の横に mr-2 */}
     <dl className="h-4 ml-2 flex">
       <dt>TR.:</dt>
       <dd className="w-4 text-right mr-2">{trackNumber}</dd>

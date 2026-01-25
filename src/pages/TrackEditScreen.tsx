@@ -1,14 +1,9 @@
 import { useState } from "react";
 import Header from "../features/Header/Header";
-import { MENU_ITEMS } from "../features/Menu/constant/menuItems";
-import { useMenuHotkeys } from "../features/Menu/useMenuHotkeys";
 import EventList from "../features/TrackEdit/EventList/EventList";
 
 function TrackEditScreen() {
   const [error, _setError] = useState("");
-  const [selectedItemId, setSelectedItemId] = useState<string>(MENU_ITEMS[0].id);
-
-  useMenuHotkeys({ selectedItemId, setSelectedItemId });
 
   return (
     <div className="mt-[33px] ml-7 flex flex-col bg-sted-black">
@@ -25,7 +20,14 @@ function TrackEditScreen() {
         <div className="w-full h-4" />
       </div>
 
-      <EventList trackMemo={""} trackNumber={1} measures={1} port={"A"} channel={1} usedMemory={0} />
+      <EventList
+        trackMemo={""}
+        trackNumber={1}
+        measures={1}
+        port={"A"}
+        channel={1}
+        usedMemory={0}
+      />
 
       <p className="fixed bottom-4 left-4">{error}</p>
     </div>

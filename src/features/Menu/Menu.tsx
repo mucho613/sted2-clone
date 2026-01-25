@@ -1,12 +1,29 @@
+import { useState } from "react";
 import MenuItem from "../MenuItem/MenuItem";
-import { MENU_ITEMS } from "./constant/menuItems";
+import { MENU_ITEMS, type MenuItemId } from "./constant/menuItems";
+import { useMenuHotkeys } from "./useMenuHotkeys";
+import { useNavigate } from "react-router";
 
-type Props = {
-  selectedItemId: string;
-}
+function Menu() {
+  const [selectedItemId, setSelectedItemId] = useState<MenuItemId>(MENU_ITEMS[0].id);
 
-function Menu(props: Props) {
-  const { selectedItemId } = props;
+  const navigate = useNavigate();
+
+  const handleMenuItemEnter = (menuItemId: MenuItemId): void => {
+    switch (menuItemId) {
+      case "EDIT_SET":
+        navigate("/track-edit");
+        break;
+      default:
+        break;
+    }
+  };
+
+  useMenuHotkeys({
+    selectedItemId,
+    setSelectedItemId,
+    onEnter: handleMenuItemEnter,
+  });
 
   return (
     <div className="flex flex-col w-[66px] gap-y-1">
