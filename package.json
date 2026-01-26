@@ -21,15 +21,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "@chromatic-com/storybook": "3.2.3",
-    "@storybook/addon-essentials": "8.4.7",
-    "@storybook/addon-interactions": "8.4.7",
-    "@storybook/addon-onboarding": "8.4.7",
-    "@storybook/addon-styling-webpack": "1.0.1",
-    "@storybook/blocks": "8.4.7",
-    "@storybook/react": "8.4.7",
-    "@storybook/react-vite": "8.4.7",
-    "@storybook/test": "8.4.7",
+    "@chromatic-com/storybook": "^5.0.0",
+    "@storybook/addon-docs": "10.2.0",
+    "@storybook/addon-onboarding": "10.2.0",
+    "@storybook/addon-styling-webpack": "^3.0.0",
+    "@storybook/react-vite": "10.2.0",
     "@tauri-apps/cli": "^2",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",
@@ -37,10 +33,10 @@
     "autoprefixer": "^10.4.20",
     "chromatic": "^11.22.0",
     "postcss": "^8.4.49",
-    "storybook": "8.4.7",
+    "storybook": "10.2.0",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.6.2",
-    "vite": "^6.0.3",
+    "vite": "^7.3.1",
     "vitest": "^4.0.18"
   }
 }

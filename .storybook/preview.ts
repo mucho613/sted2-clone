@@ -1,4 +1,4 @@
-import type { Preview } from "@storybook/react";
+import type { Preview } from "@storybook/react-vite";
 
 // Import global styles of STed2 Clone
 import "../src/input.css";
