@@ -20,6 +20,7 @@ function TrackEditScreen() {
         <div className="w-full h-4" />
       </div>
 
+      <div className="ml-[7px]">
       <EventList
         trackMemo={""}
         trackNumber={1}
@@ -28,6 +29,7 @@ function TrackEditScreen() {
         channel={1}
         usedMemory={0}
       />
+      </div>
 
       <p className="fixed bottom-4 left-4">{error}</p>
     </div>

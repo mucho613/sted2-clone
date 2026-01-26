@@ -18,6 +18,7 @@
     background-color: #070016;
     color: #e7e7e7;
     line-height: 1;
+    font-size: 16px;
   }
 
   input,
@@ -27,5 +28,11 @@
 
   button {
     font-family: inherit;
+  }
+
+  th,
+  td {
+    padding: 0;
+    font-weight: normal;
   }
 }
