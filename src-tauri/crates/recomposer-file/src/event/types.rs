@@ -28,7 +28,7 @@ pub enum TrackEvent {
         device_number: u8,
         model_id: u8,
     },
-    RolandAddressParameter {
+    RolandAddressAndParameter {
         step_time: u8,
         address: u8,
         description: u8,

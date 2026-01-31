@@ -29,7 +29,7 @@ fn take_single_length_event(i: &[u8]) -> IResult<&[u8], TrackEvent, Error<&[u8]>
             gate_time: byte_1,
             velocity: byte_2,
         },
-        0xDE => TrackEvent::RolandAddressParameter {
+        0xDE => TrackEvent::RolandAddressAndParameter {
             step_time: byte_0,
             address: byte_1,
             description: byte_2,
@@ -168,7 +168,7 @@ mod tests {
 
         assert_eq!(
             event,
-            super::TrackEvent::RolandAddressParameter {
+            super::TrackEvent::RolandAddressAndParameter {
                 step_time: 0x07,
                 address: 0x15,
                 description: 0x25,

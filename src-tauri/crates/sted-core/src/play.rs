@@ -57,7 +57,7 @@ pub fn play(rcp_file: &RcpFile) {
                 TrackEvent::RolandDeviceNumberAndModelId { step_time, .. } => {
                     current_time += *step_time as u32;
                 }
-                TrackEvent::RolandAddressParameter { step_time, .. } => {
+                TrackEvent::RolandAddressAndParameter { step_time, .. } => {
                     current_time += *step_time as u32;
                 }
                 TrackEvent::BankPrg { step_time, .. } => {
