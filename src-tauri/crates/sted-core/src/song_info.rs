@@ -43,8 +43,8 @@ pub fn display_song_info(rcp_file: &RcpFile) {
         println!("User Exclusive Data: {}", decoded);
     }
 
-    // トラック1のイベントを全て表示（デバッグ用）
-    for event in rcp_file.track_block.tracks[0].track_events.iter().take(100) {
+    // トラック2のイベントを全て表示（デバッグ用）
+    for event in rcp_file.track_block.tracks[1].track_events.iter().take(100) {
         println!("Event: {:?}", event);
     }
 }
