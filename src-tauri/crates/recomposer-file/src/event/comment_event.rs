@@ -1,4 +1,4 @@
-use nom::{bytes::complete::take, error::Error, IResult};
+use nom::{IResult, bytes::complete::take, error::Error};
 
 use super::types::TrackEvent;
 
