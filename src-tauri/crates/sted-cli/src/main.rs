@@ -2,15 +2,36 @@ use std::env;
 use std::fs;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let mut args = env::args();
+    let program = args.next().unwrap_or_else(|| "sted-cli".to_string());
+    let command = match args.next() {
+        Some(command) => command,
+        None => print_usage_and_exit(&program, None),
+    };
 
-    let path = args.get(1).expect("Please provide a path to the RCP file");
+    match command.as_str() {
+        "play" => play_command(program, args.collect()),
+        "list-midi-ports" => list_midi_ports_and_exit(),
+        "list-serial-ports" => list_serial_ports_and_exit(),
+        "--help" | "-h" => print_usage_and_exit(&program, None),
+        _ => {
+            eprintln!("Unknown command: {command}");
+            print_usage_and_exit(&program, None);
+        }
+    }
+}
+
+fn play_command(program: String, args: Vec<String>) {
+    if args.is_empty() {
+        eprintln!("Missing file path");
+        print_usage_and_exit(&program, Some("play"));
+    }
+
+    let path = &args[0];
     let mut output: Option<String> = None;
     let mut port_name: Option<String> = None;
-    let mut list_midi_ports = false;
-    let mut list_serial_ports = false;
 
-    let mut i = 2;
+    let mut i = 1;
     while i < args.len() {
         match args[i].as_str() {
             "--output" => {
@@ -23,29 +44,14 @@ fn main() {
                 port_name = Some(value.to_string());
                 i += 2;
             }
-            "--list-midi-ports" => {
-                list_midi_ports = true;
-                i += 1;
-            }
-            "--list-serial-ports" => {
-                list_serial_ports = true;
-                i += 1;
-            }
             "--help" | "-h" => {
-                print_usage_and_exit();
+                print_usage_and_exit(&program, Some("play"));
             }
             _ => {
                 eprintln!("Unknown argument: {}", args[i]);
-                print_usage_and_exit();
+                print_usage_and_exit(&program, Some("play"));
             }
         }
-    }
-
-    if list_midi_ports {
-        list_midi_ports_and_exit();
-    }
-    if list_serial_ports {
-        list_serial_ports_and_exit();
     }
 
     let output = output.expect("Missing --output (serial or midi)");
@@ -59,7 +65,7 @@ fn main() {
         "midi" => sted_core::OutputTarget::Midi { port_name },
         other => {
             eprintln!("Unknown output type: {}", other);
-            print_usage_and_exit();
+            print_usage_and_exit(&program, Some("play"));
         }
     };
 
@@ -69,13 +75,23 @@ fn main() {
     }
 }
 
-fn print_usage_and_exit() -> ! {
-    eprintln!(
-        "Usage: sted-cli <file.rcp> --output <serial|midi> --port <PORT_NAME>\n\
-         Options:\n\
-         --list-midi-ports\n\
-         --list-serial-ports"
-    );
+fn print_usage_and_exit(program: &str, command: Option<&str>) -> ! {
+    match command {
+        Some("play") => {
+            eprintln!(
+                "Usage:\n\
+                 {program} play <file.rcp> --output <serial|midi> --port <PORT_NAME>"
+            );
+        }
+        _ => {
+            eprintln!(
+                "Usage:\n\
+                 {program} play <file.rcp> --output <serial|midi> --port <PORT_NAME>\n\
+                 {program} list-midi-ports\n\
+                 {program} list-serial-ports"
+            );
+        }
+    }
     std::process::exit(1);
 }
 
