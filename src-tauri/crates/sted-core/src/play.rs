@@ -99,19 +99,57 @@ pub fn play(rcp_file: &RcpFile, output: OutputTarget) -> Result<(), PlayError> {
                 TrackEvent::Tempo { step_time, .. } => {
                     current_time += *step_time as u32;
                 }
-                TrackEvent::AfterTouch { step_time, .. } => {
+                TrackEvent::AfterTouch {
+                    step_time,
+                    pressure,
+                } => {
+                    current_time += *step_time as u32;
+                    // AfterTouch イベント
+                    midi_events.push(MidiEvent {
+                        tick: current_time,
+                        bytes: vec![0xA0 | (track.track_header.channel & 0x0F), *pressure],
+                    });
+                }
+                TrackEvent::ControlChange {
+                    step_time,
+                    controller_number,
+                    value,
+                } => {
+                    // Control Change イベント
+                    midi_events.push(MidiEvent {
+                        tick: current_time,
+                        bytes: vec![
+                            0xB0 | (track.track_header.channel & 0x0F),
+                            *controller_number,
+                            *value,
+                        ],
+                    });
                     current_time += *step_time as u32;
                 }
-                TrackEvent::ControlChange { step_time, .. } => {
-                    current_time += *step_time as u32;
-                }
-                TrackEvent::ProgramChange { step_time, .. } => {
+                TrackEvent::ProgramChange {
+                    step_time,
+                    program_number,
+                } => {
+                    // Program Change イベント
+                    midi_events.push(MidiEvent {
+                        tick: current_time,
+                        bytes: vec![0xC0 | (track.track_header.channel & 0x0F), *program_number],
+                    });
                     current_time += *step_time as u32;
                 }
                 TrackEvent::PolyphonicAfterTouch { step_time, .. } => {
                     current_time += *step_time as u32;
                 }
-                TrackEvent::PitchBend { step_time, .. } => {
+                TrackEvent::PitchBend { step_time, value } => {
+                    // Pitch Bend イベント
+                    midi_events.push(MidiEvent {
+                        tick: current_time,
+                        bytes: vec![
+                            0xE0 | (track.track_header.channel & 0x0F),
+                            *value as u8 & 0x7F,
+                            (*value as u8 >> 7) & 0x7F,
+                        ],
+                    });
                     current_time += *step_time as u32;
                 }
                 TrackEvent::Key { offset: _ } => {}
