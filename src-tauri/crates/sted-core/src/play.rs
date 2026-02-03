@@ -1,5 +1,32 @@
 use recomposer_file::{RcpFile, event::types::TrackEvent};
 
+#[derive(Debug, Clone)]
+pub enum OutputTarget {
+    Serial { port_name: String },
+    Midi { port_name: String },
+}
+
+#[derive(Debug)]
+pub enum PlayError {
+    SerialPort(sted_midi::SerialPortError),
+    SerialSend(std::io::Error),
+    MidiPort(sted_midi::MidiOutputError),
+    MidiSend(sted_midi::SendError),
+}
+
+impl std::fmt::Display for PlayError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PlayError::SerialPort(err) => write!(f, "Failed to open serial port: {err}"),
+            PlayError::SerialSend(err) => write!(f, "Failed to send serial MIDI data: {err}"),
+            PlayError::MidiPort(err) => write!(f, "Failed to open MIDI output: {err}"),
+            PlayError::MidiSend(err) => write!(f, "Failed to send MIDI data: {err}"),
+        }
+    }
+}
+
+impl std::error::Error for PlayError {}
+
 use crate::song_info::display_song_info;
 
 struct MidiEvent {
@@ -8,7 +35,7 @@ struct MidiEvent {
 }
 
 /// Play the loaded Recomposer format file
-pub fn play(rcp_file: &RcpFile) {
+pub fn play(rcp_file: &RcpFile, output: OutputTarget) -> Result<(), PlayError> {
     display_song_info(&rcp_file);
 
     let mut track_events: Vec<Vec<MidiEvent>> = Vec::new();
@@ -115,9 +142,23 @@ pub fn play(rcp_file: &RcpFile) {
 
     all_events.sort_by_key(|e| e.tick);
 
-    let serial_port = sted_midi::serial_port();
+    enum OutputConnection {
+        Serial(Box<dyn std::io::Write + Send>),
+        Midi(sted_midi::MidiOutputConnection),
+    }
 
-    // sted-midi の send 関数で、MIDI イベントを送信する
+    let mut output_connection = match output {
+        OutputTarget::Serial { port_name } => {
+            let port = sted_midi::serial_port(&port_name).map_err(PlayError::SerialPort)?;
+            OutputConnection::Serial(port)
+        }
+        OutputTarget::Midi { port_name } => {
+            let connection = sted_midi::midi_output_connection_by_name(&port_name)
+                .map_err(PlayError::MidiPort)?;
+            OutputConnection::Midi(connection)
+        }
+    };
+
     let tempo = rcp_file.header_block.tempo;
     let timebase = rcp_file.header_block.time_base;
 
@@ -132,10 +173,21 @@ pub fn play(rcp_file: &RcpFile) {
 
         std::thread::sleep(std::time::Duration::from_millis(wait_duration_ms));
 
-        if let Err(e) = sted_midi::send(serial_port.try_clone().unwrap(), &event.bytes) {
-            eprintln!("Error sending MIDI data: {}", e);
+        let send_result = match &mut output_connection {
+            OutputConnection::Serial(port) => {
+                sted_midi::send(port.as_mut(), &event.bytes).map_err(PlayError::SerialSend)
+            }
+            OutputConnection::Midi(connection) => {
+                sted_midi::send_midi(connection, &event.bytes).map_err(PlayError::MidiSend)
+            }
+        };
+
+        if let Err(e) = send_result {
+            return Err(e);
         }
 
         previous_tick = event.tick;
     }
+
+    Ok(())
 }
