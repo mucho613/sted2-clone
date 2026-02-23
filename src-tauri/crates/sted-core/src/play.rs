@@ -1,4 +1,8 @@
-use recomposer_file::{RcpFile, event::types::TrackEvent};
+use recomposer_file::{
+    RcpFile,
+    event::types::TrackEvent,
+    track_block::types::Track,
+};
 
 #[derive(Debug, Clone)]
 pub enum OutputTarget {
@@ -12,6 +16,7 @@ pub enum PlayError {
     SerialSend(std::io::Error),
     MidiPort(sted_midi::MidiOutputError),
     MidiSend(sted_midi::SendError),
+    InvalidTrackSequence { track_number: u8, reason: String },
 }
 
 impl std::fmt::Display for PlayError {
@@ -21,6 +26,10 @@ impl std::fmt::Display for PlayError {
             PlayError::SerialSend(err) => write!(f, "Failed to send serial MIDI data: {err}"),
             PlayError::MidiPort(err) => write!(f, "Failed to open MIDI output: {err}"),
             PlayError::MidiSend(err) => write!(f, "Failed to send MIDI data: {err}"),
+            PlayError::InvalidTrackSequence {
+                track_number,
+                reason,
+            } => write!(f, "Invalid track sequence (track {track_number}): {reason}"),
         }
     }
 }
@@ -32,6 +41,183 @@ use crate::song_info::display_song_info;
 struct MidiEvent {
     tick: u32,
     bytes: Vec<u8>,
+}
+
+fn split_measures(track_events: &[TrackEvent]) -> Vec<Vec<TrackEvent>> {
+    let mut measures = Vec::new();
+    let mut current_measure = Vec::new();
+
+    for event in track_events {
+        match event {
+            TrackEvent::MeasureEnd => {
+                measures.push(std::mem::take(&mut current_measure));
+            }
+            _ => current_measure.push(event.clone()),
+        }
+    }
+
+    if !current_measure.is_empty() {
+        measures.push(current_measure);
+    }
+
+    measures
+}
+
+fn resolve_measure(
+    index: usize,
+    measures: &[Vec<TrackEvent>],
+    cache: &mut [Option<Vec<TrackEvent>>],
+    visiting: &mut [bool],
+    track_number: u8,
+) -> Result<Vec<TrackEvent>, PlayError> {
+    if let Some(cached) = &cache[index] {
+        return Ok(cached.clone());
+    }
+
+    if visiting[index] {
+        return Err(PlayError::InvalidTrackSequence {
+            track_number,
+            reason: format!("SameMeasure loop detected at measure {}", index + 1),
+        });
+    }
+
+    visiting[index] = true;
+
+    let mut same_measure: Option<(u8, u16)> = None;
+    for event in &measures[index] {
+        if let TrackEvent::SameMeasure {
+            measure,
+            track_offset,
+        } = event
+        {
+            if same_measure.is_some() {
+                return Err(PlayError::InvalidTrackSequence {
+                    track_number,
+                    reason: format!(
+                        "Multiple SameMeasure events found in measure {}",
+                        index + 1
+                    ),
+                });
+            }
+            same_measure = Some((*measure, *track_offset));
+        }
+    }
+
+    let resolved = if let Some((measure, track_offset)) = same_measure {
+        if track_offset != 0 {
+            return Err(PlayError::InvalidTrackSequence {
+                track_number,
+                reason: format!(
+                    "SameMeasure track_offset {track_offset} is not supported (measure {})",
+                    index + 1
+                ),
+            });
+        }
+
+        if measure == 0 {
+            return Err(PlayError::InvalidTrackSequence {
+                track_number,
+                reason: format!("SameMeasure references invalid measure 0 (measure {})", index + 1),
+            });
+        }
+
+        let target_index = (measure - 1) as usize;
+        if target_index >= measures.len() {
+            return Err(PlayError::InvalidTrackSequence {
+                track_number,
+                reason: format!(
+                    "SameMeasure references out-of-range measure {} (measure {})",
+                    measure,
+                    index + 1
+                ),
+            });
+        }
+
+        resolve_measure(target_index, measures, cache, visiting, track_number)?
+    } else {
+        measures[index]
+            .iter()
+            .filter(|event| !matches!(event, TrackEvent::SameMeasure { .. }))
+            .cloned()
+            .collect()
+    };
+
+    visiting[index] = false;
+    cache[index] = Some(resolved.clone());
+
+    Ok(resolved)
+}
+
+fn resolve_same_measures(
+    measures: &[Vec<TrackEvent>],
+    track_number: u8,
+) -> Result<Vec<Vec<TrackEvent>>, PlayError> {
+    let mut cache = vec![None; measures.len()];
+    let mut visiting = vec![false; measures.len()];
+    let mut resolved = Vec::with_capacity(measures.len());
+
+    for index in 0..measures.len() {
+        let measure_events = resolve_measure(index, measures, &mut cache, &mut visiting, track_number)?;
+        resolved.push(measure_events);
+    }
+
+    Ok(resolved)
+}
+
+fn expand_repeats(
+    track_events: &[TrackEvent],
+    track_number: u8,
+) -> Result<Vec<TrackEvent>, PlayError> {
+    let mut output: Vec<TrackEvent> = Vec::new();
+    let mut repeat_stack: Vec<usize> = Vec::new();
+
+    for event in track_events {
+        match event {
+            TrackEvent::RepeatStart => {
+                repeat_stack.push(output.len());
+            }
+            TrackEvent::RepeatEnd { count } => {
+                let start_index = match repeat_stack.pop() {
+                    Some(index) => index,
+                    None => {
+                        return Err(PlayError::InvalidTrackSequence {
+                            track_number,
+                            reason: "RepeatEnd found without matching RepeatStart".to_string(),
+                        });
+                    }
+                };
+
+                let segment: Vec<TrackEvent> = output[start_index..].to_vec();
+                output.truncate(start_index);
+
+                for _ in 0..(*count as usize) {
+                    output.extend(segment.iter().cloned());
+                }
+            }
+            _ => output.push(event.clone()),
+        }
+    }
+
+    if !repeat_stack.is_empty() {
+        return Err(PlayError::InvalidTrackSequence {
+            track_number,
+            reason: "RepeatStart found without matching RepeatEnd".to_string(),
+        });
+    }
+
+    Ok(output)
+}
+
+fn expand_track_events(track: &Track) -> Result<Vec<TrackEvent>, PlayError> {
+    let measures = split_measures(&track.track_events);
+    let resolved_measures = resolve_same_measures(&measures, track.track_header.track_number)?;
+
+    let mut flattened: Vec<TrackEvent> = Vec::new();
+    for measure in resolved_measures {
+        flattened.extend(measure);
+    }
+
+    expand_repeats(&flattened, track.track_header.track_number)
 }
 
 /// Play the loaded Recomposer format file
@@ -46,7 +232,9 @@ pub fn play(rcp_file: &RcpFile, output: OutputTarget) -> Result<(), PlayError> {
 
         let mut midi_events: Vec<MidiEvent> = Vec::new();
 
-        for event in &track.track_events {
+        let expanded_events = expand_track_events(track)?;
+
+        for event in &expanded_events {
             match event {
                 TrackEvent::Note {
                     key_number,
